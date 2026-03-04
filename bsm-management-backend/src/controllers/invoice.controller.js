@@ -2,8 +2,31 @@ import {
   createInvoiceService,
   getInvoicesByMonthService,
   getInvoiceDetailService,
-  markInvoicePaidService// 👈 THIẾU CÁI NÀY
+  markInvoicePaidService,
+  getTenantInvoicesService,
+  getTenantLatestInvoiceService,
+  getTenantInvoiceDetailService
 } from "../services/invoice.service.js";
+
+export async function getTenantInvoiceDetail(req, res) {
+  try {
+    const tenantId = req.user.id;
+    const invoiceId = Number(req.params.id);
+
+    const invoice = await getTenantInvoiceDetailService(
+      tenantId,
+      invoiceId
+    );
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+    }
+
+    res.json(invoice);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
 
 export async function markInvoicePaid(req, res) {
   try {
@@ -65,5 +88,30 @@ export async function getInvoiceDetail(req, res) {
     res.json(invoice);
   } catch (err) {
     res.status(404).json({ message: err.message });
+  }
+}
+/* =========================
+   TENANT - GET ALL
+========================= */
+export async function getTenantInvoices(req, res) {
+  try {
+    const tenantId = req.user.id;
+    const data = await getTenantInvoicesService(tenantId);
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+/* =========================
+   TENANT - GET LATEST
+========================= */
+export async function getTenantLatestInvoice(req, res) {
+  try {
+    const tenantId = req.user.id;
+    const invoice = await getTenantLatestInvoiceService(tenantId);
+    res.json(invoice);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
   }
 }

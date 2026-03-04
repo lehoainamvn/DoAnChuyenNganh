@@ -1,21 +1,20 @@
-const API_URL = "http://localhost:5000/api/tenant";
+const API_URL = "http://localhost:5000/api/tenants";
 
 function getAuthHeader() {
   const token = localStorage.getItem("token");
-  if (!token) throw new Error("Chưa đăng nhập");
-
   return {
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
   };
 }
 
 export async function getTenantDashboard() {
   const res = await fetch(`${API_URL}/dashboard`, {
-    headers: getAuthHeader()
+    headers: getAuthHeader(),
   });
 
   if (!res.ok) {
-    throw new Error("Không thể tải dữ liệu");
+    throw new Error("Fetch dashboard failed");
   }
 
   return res.json();

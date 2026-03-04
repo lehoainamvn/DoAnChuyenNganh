@@ -148,3 +148,71 @@ export async function markInvoicePaid(ownerId, invoiceId) {
 
   return result.rowsAffected[0] === 1;
 }
+/* =========================
+   TENANT - GET ALL INVOICES
+========================= */
+export async function getInvoicesByTenantId(tenantId) {
+  const pool = await poolPromise;
+
+  const result = await pool.request()
+    .input("tenant_id", sql.Int, tenantId)
+    .query(`
+      SELECT *
+      FROM invoices
+      WHERE tenant_id = @tenant_id
+      ORDER BY created_at DESC
+    `);
+
+  return result.recordset;
+}
+
+/* =========================
+   TENANT - GET LATEST
+========================= */
+export async function getLatestInvoiceByTenantId(tenantId) {
+  const pool = await poolPromise;
+
+  const result = await pool.request()
+    .input("tenant_id", sql.Int, tenantId)
+    .query(`
+      SELECT TOP 1 *
+      FROM invoices
+      WHERE tenant_id = @tenant_id
+      ORDER BY created_at DESC
+    `);
+
+  return result.recordset[0];
+}
+export async function getInvoiceDetailByTenantId(tenantId, invoiceId) {
+  const pool = await poolPromise;
+
+  const result = await pool.request()
+    .input("tenant_id", sql.Int, tenantId)
+    .input("invoice_id", sql.Int, invoiceId)
+    .query(`
+      SELECT i.*, r.room_name
+      FROM invoices i
+      JOIN rooms r ON i.room_id = r.id
+      WHERE i.id = @invoice_id
+        AND i.tenant_id = @tenant_id
+    `);
+
+  return result.recordset[0];
+}
+export async function getTenantStatisticsRepo(tenantId) {
+  const pool = await poolPromise;
+
+  const result = await pool.request()
+    .input("tenant_id", sql.Int, tenantId)
+    .query(`
+      SELECT 
+        month,
+        electric_used,
+        water_used
+      FROM invoices
+      WHERE tenant_id = @tenant_id
+      ORDER BY month ASC
+    `);
+
+  return result.recordset;
+}

@@ -1,149 +1,193 @@
 import { useEffect, useState } from "react";
-import { getTenantDashboard } from "../../api/tenant.self.api.js";
-import { useNavigate } from "react-router-dom";
+import { getTenantDashboard } from "../../api/tenantDashboard.api";
 
 export default function TenantHome() {
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await getTenantDashboard();
-        setData(res);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
+    loadData();
   }, []);
 
-  if (loading) {
-    return <div className="text-slate-500">Đang tải dữ liệu...</div>;
+  async function loadData() {
+    try {
+      const res = await getTenantDashboard();
+      setData(res);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  if (!data) {
-    return <div className="text-rose-500">Không thể tải dữ liệu</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-60">
+        <div className="animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
   }
+
+  if (!data || !data.profile) {
+    return (
+      <div className="text-center text-slate-500 py-16">
+        Bạn chưa được gán phòng.
+      </div>
+    );
+  }
+
+  const invoice = data.latest_invoice;
 
   return (
     <div className="space-y-8">
 
-      {/* ===== HERO ===== */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-500
-                      rounded-3xl p-8 text-white shadow-lg">
-        <h1 className="text-3xl font-extrabold mb-2">
-          Chào mừng bạn 👋
+      {/* ===== HEADER ===== */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">
+          Dashboard
         </h1>
-        <p className="text-indigo-100">
-          Theo dõi thông tin phòng và hóa đơn của bạn tại đây
+        <p className="text-slate-500 text-sm">
+          Tổng quan phòng trọ của bạn
         </p>
       </div>
 
-      {/* ===== KPI CARDS ===== */}
-      <div className="grid md:grid-cols-3 gap-6">
-
-        {/* ROOM */}
-        <div className="bg-white rounded-3xl shadow-md p-6 hover:shadow-lg transition">
-          <div className="w-12 h-12 bg-indigo-100 text-indigo-600
-                          rounded-xl flex items-center justify-center text-xl mb-4">
-            🛏
-          </div>
-          <p className="text-sm text-slate-500">Phòng của bạn</p>
-          <p className="text-2xl font-extrabold text-slate-800">
-            {data.room || "Chưa được gán phòng"}
-          </p>
-        </div>
-
-        {/* UNPAID */}
-        <div className="bg-white rounded-3xl shadow-md p-6 hover:shadow-lg transition">
-          <div className="w-12 h-12 bg-rose-100 text-rose-600
-                          rounded-xl flex items-center justify-center text-xl mb-4">
-            🧾
-          </div>
-          <p className="text-sm text-slate-500">
-            Hóa đơn chưa thanh toán
-          </p>
-          <p className="text-2xl font-extrabold text-rose-600">
-            {data.unpaidCount} hóa đơn
-          </p>
-        </div>
+      {/* ===== OVERVIEW CARDS ===== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
         {/* TOTAL */}
-        <div className="bg-white rounded-3xl shadow-md p-6 hover:shadow-lg transition">
-          <div className="w-12 h-12 bg-emerald-100 text-emerald-600
-                          rounded-xl flex items-center justify-center text-xl mb-4">
-            💰
-          </div>
-          <p className="text-sm text-slate-500">
-            Tổng tiền tháng này
-          </p>
-          <p className="text-2xl font-extrabold text-slate-800">
-            {Number(data.totalMonth).toLocaleString("vi-VN")} đ
-          </p>
+        <Card
+          title="Tổng tiền tháng này"
+          value={invoice ? formatMoney(invoice.total_amount) : "—"}
+          color="text-indigo-600"
+        />
+
+        {/* ELECTRIC */}
+        <Card
+          title="Tiền điện"
+          value={
+            invoice
+              ? formatMoney(invoice.electric_cost)
+              : "—"
+          }
+          color="text-orange-500"
+        />
+
+        {/* WATER */}
+        <Card
+          title="Tiền nước"
+          value={
+            invoice
+              ? formatMoney(invoice.water_cost)
+              : "—"
+          }
+          color="text-blue-500"
+        />
+
+        {/* STATUS */}
+        <div className="bg-white rounded-2xl shadow-sm border p-6">
+          <p className="text-slate-500 text-sm">Trạng thái thanh toán</p>
+          {invoice ? (
+            <span
+              className={`inline-block mt-3 px-4 py-1 text-sm rounded-full font-semibold ${
+                invoice.status === "PAID"
+                  ? "bg-green-100 text-green-600"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              {invoice.status}
+            </span>
+          ) : (
+            <p className="mt-3 text-slate-400">Chưa có hóa đơn</p>
+          )}
         </div>
 
       </div>
 
-      {/* ===== RECENT INVOICE ===== */}
-      {data.recentInvoice && (
-        <div className="bg-white rounded-3xl shadow-md p-8 space-y-4">
+      {/* ===== DETAIL GRID ===== */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-slate-800">
-              Hóa đơn gần nhất
-            </h2>
+        {/* LATEST INVOICE */}
+        <div className="bg-white rounded-2xl shadow-sm border p-6">
+          <h3 className="font-semibold text-slate-700 mb-4">
+            Hóa đơn gần nhất
+          </h3>
 
-            <button
-              onClick={() => navigate("/tenant/invoices")}
-              className="text-indigo-600 text-sm font-semibold hover:underline"
-            >
-              Xem tất cả
-            </button>
-          </div>
-
-          <div className="border rounded-2xl p-6 flex justify-between items-center hover:bg-slate-50 transition">
-
-            <div>
-              <p className="font-semibold text-slate-800">
-                Tháng {data.recentInvoice.month}
+          {invoice ? (
+            <div className="space-y-2 text-sm text-slate-600">
+              <p>
+                <span className="font-medium">Tháng:</span>{" "}
+                {invoice.month}
               </p>
-              <p className="text-sm text-slate-500">
-                Ngày tạo: {new Date(
-                  data.recentInvoice.created_at
-                ).toLocaleDateString()}
+              <p>
+                <span className="font-medium">Tiền phòng:</span>{" "}
+                {formatMoney(invoice.room_price)}
+              </p>
+              <p>
+                <span className="font-medium">Điện sử dụng:</span>{" "}
+                {invoice.electric_used} kWh
+              </p>
+              <p>
+                <span className="font-medium">Nước sử dụng:</span>{" "}
+                {invoice.water_used} m³
               </p>
             </div>
-
-            <div className="text-right">
-              <p className="text-xl font-bold text-indigo-600">
-                {Number(
-                  data.recentInvoice.total_amount
-                ).toLocaleString("vi-VN")} đ
-              </p>
-
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  data.recentInvoice.status === "PAID"
-                    ? "bg-emerald-100 text-emerald-600"
-                    : "bg-rose-100 text-rose-600"
-                }`}
-              >
-                {data.recentInvoice.status === "PAID"
-                  ? "Đã thanh toán"
-                  : "Chưa thanh toán"}
-              </span>
-            </div>
-
-          </div>
-
+          ) : (
+            <p className="text-slate-400 text-sm">
+              Chưa có dữ liệu hóa đơn
+            </p>
+          )}
         </div>
-      )}
 
+        {/* NOTIFICATIONS */}
+        <div className="bg-white rounded-2xl shadow-sm border p-6">
+          <h3 className="font-semibold text-slate-700 mb-4">
+            Thông báo
+          </h3>
+
+          {data.notifications.length === 0 ? (
+            <p className="text-slate-400 text-sm">
+              Không có thông báo
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {data.notifications.map((n) => (
+                <div
+                  key={n.id}
+                  className="p-4 rounded-xl bg-slate-50 border text-sm"
+                >
+                  <p className="font-semibold text-slate-700">
+                    {n.title}
+                  </p>
+                  <p className="text-slate-500 mt-1">
+                    {n.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
+}
+
+/* ===== CARD COMPONENT ===== */
+function Card({ title, value, color }) {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border p-6">
+      <p className="text-slate-500 text-sm">{title}</p>
+      <h2 className={`text-xl font-bold mt-3 ${color}`}>
+        {value}
+      </h2>
+    </div>
+  );
+}
+
+/* ===== FORMAT MONEY ===== */
+function formatMoney(value) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value || 0);
 }

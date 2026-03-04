@@ -4,13 +4,35 @@ import { verifyToken } from "../middlewares/auth.middleware.js";
 import {
   findTenantByEmailController,
   assignTenantToRoomController,
-  removeTenantFromRoomController
+  removeTenantFromRoomController,
+  getTenantDashboardController,
+  getTenantStatisticsController
 } from "../controllers/tenant.controller.js";
+import { getTenantInvoiceDetail } from "../controllers/invoice.controller.js";
+import { getTenantInvoices } from "../controllers/invoice.controller.js";
 
 const router = express.Router();
 
+// 🏠 dashboard tenant
+router.get(
+  "/dashboard",
+  verifyToken,
+  getTenantDashboardController
+);
+
+// 🧾 tenant invoices
+router.get(
+  "/invoices",
+  verifyToken,
+  getTenantInvoices
+);
+
 // 🔍 tìm người thuê theo email
-router.get("/find-by-email", verifyToken, findTenantByEmailController);
+router.get(
+  "/find-by-email",
+  verifyToken,
+  findTenantByEmailController
+);
 
 // ➕ gán người thuê
 router.post(
@@ -25,5 +47,14 @@ router.post(
   verifyToken,
   removeTenantFromRoomController
 );
-
+router.get(
+  "/invoices/:id",
+  verifyToken,
+  getTenantInvoiceDetail
+);
+router.get(
+  "/statistics",
+  verifyToken,
+  getTenantStatisticsController
+);
 export default router;

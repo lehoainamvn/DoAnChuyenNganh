@@ -1,139 +1,126 @@
+import { useEffect, useState } from "react";
+import { getTenantInvoices } from "../../api/tenantInvoice.api";
+import { useNavigate } from "react-router-dom";
+
 export default function TenantInvoices() {
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadInvoices();
+  }, []);
+
+  async function loadInvoices() {
+    try {
+      const data = await getTenantInvoices();
+      setInvoices(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-60">
+        <div className="animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
 
-      {/* ===== HEADER ===== */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800">
-            Hóa đơn của tôi
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Theo dõi và kiểm tra các hóa đơn phòng
-          </p>
-        </div>
-
-        <select className="border px-4 py-2 rounded-xl text-sm
-                           focus:ring-2 focus:ring-indigo-500">
-          <option>Tất cả</option>
-          <option>Chưa thanh toán</option>
-          <option>Đã thanh toán</option>
-        </select>
+      {/* HEADER */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">
+          Hóa đơn của tôi
+        </h1>
+        <p className="text-slate-500 text-sm">
+          Danh sách hóa đơn theo từng tháng
+        </p>
       </div>
 
-      {/* ===== SUMMARY CARDS ===== */}
-      <div className="grid md:grid-cols-3 gap-6">
+      {/* TABLE */}
+      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        {invoices.length === 0 ? (
+          <div className="text-center py-16 text-slate-500">
+            Chưa có hóa đơn
+          </div>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 border-b">
+              <tr className="text-left text-slate-500">
+                <th className="px-6 py-4">Tháng</th>
+                <th className="px-6 py-4">Tổng tiền</th>
+                <th className="px-6 py-4">Trạng thái</th>
+                <th className="px-6 py-4">Ngày tạo</th>
+                <th className="px-6 py-4 text-center">Chi tiết</th>
+              </tr>
+            </thead>
 
-        <div className="bg-white rounded-3xl shadow-md p-6">
-          <p className="text-sm text-slate-500">Tổng hóa đơn</p>
-          <p className="text-2xl font-extrabold text-slate-800 mt-1">
-            12
-          </p>
-        </div>
+            <tbody>
+              {invoices.map((invoice) => (
+                <tr
+                  key={invoice.id}
+                  className="border-b hover:bg-slate-50 transition"
+                >
+                  <td className="px-6 py-4 font-medium text-slate-700">
+                    {invoice.month}
+                  </td>
 
-        <div className="bg-white rounded-3xl shadow-md p-6">
-          <p className="text-sm text-slate-500">
-            Chưa thanh toán
-          </p>
-          <p className="text-2xl font-extrabold text-rose-600 mt-1">
-            1
-          </p>
-        </div>
+                  <td className="px-6 py-4 text-indigo-600 font-semibold">
+                    {formatMoney(invoice.total_amount)}
+                  </td>
 
-        <div className="bg-white rounded-3xl shadow-md p-6">
-          <p className="text-sm text-slate-500">
-            Tổng tiền chưa thanh toán
-          </p>
-          <p className="text-2xl font-extrabold text-indigo-600 mt-1">
-            2.500.000 đ
-          </p>
-        </div>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        invoice.status === "PAID"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
+                      }`}
+                    >
+                      {invoice.status}
+                    </span>
+                  </td>
 
+                  <td className="px-6 py-4 text-slate-500">
+                    {formatDate(invoice.created_at)}
+                  </td>
+
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      onClick={() =>
+                        navigate(`/tenant/invoices/${invoice.id}`)
+                      }
+                      className="text-indigo-600 hover:underline font-medium"
+                    >
+                      Xem
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
-
-      {/* ===== TABLE ===== */}
-      <div className="bg-white rounded-3xl shadow-md overflow-hidden">
-
-        <table className="w-full text-sm">
-
-          <thead className="bg-slate-50 text-slate-600">
-            <tr>
-              <th className="p-4 text-left font-semibold">
-                Tháng
-              </th>
-              <th className="p-4 text-right font-semibold">
-                Tổng tiền
-              </th>
-              <th className="p-4 text-center font-semibold">
-                Trạng thái
-              </th>
-              <th className="p-4 text-center font-semibold">
-                Chi tiết
-              </th>
-            </tr>
-          </thead>
-
-          <tbody className="divide-y">
-
-            <tr className="hover:bg-slate-50 transition">
-              <td className="p-4 font-medium text-slate-800">
-                Tháng 03/2026
-              </td>
-
-              <td className="p-4 text-right font-semibold text-indigo-600">
-                2.500.000 đ
-              </td>
-
-              <td className="p-4 text-center">
-                <span className="px-3 py-1 rounded-full text-xs font-semibold
-                                 bg-amber-100 text-amber-700">
-                  Chưa thanh toán
-                </span>
-              </td>
-
-              <td className="p-4 text-center">
-                <button className="text-indigo-600 font-semibold hover:underline">
-                  Xem
-                </button>
-              </td>
-            </tr>
-
-            <tr className="hover:bg-slate-50 transition">
-              <td className="p-4 font-medium text-slate-800">
-                Tháng 02/2026
-              </td>
-
-              <td className="p-4 text-right font-semibold text-slate-800">
-                2.400.000 đ
-              </td>
-
-              <td className="p-4 text-center">
-                <span className="px-3 py-1 rounded-full text-xs font-semibold
-                                 bg-emerald-100 text-emerald-700">
-                  Đã thanh toán
-                </span>
-              </td>
-
-              <td className="p-4 text-center">
-                <button className="text-indigo-600 font-semibold hover:underline">
-                  Xem
-                </button>
-              </td>
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-      {/* ===== EMPTY STATE (Demo) ===== */}
-      {/* 
-      <div className="bg-white rounded-3xl shadow-md p-12 text-center text-slate-500">
-        Bạn chưa có hóa đơn nào
-      </div>
-      */}
 
     </div>
   );
+}
+
+/* FORMAT MONEY */
+function formatMoney(value) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value || 0);
+}
+
+/* FORMAT DATE */
+function formatDate(date) {
+  return new Date(date).toLocaleDateString("vi-VN");
 }

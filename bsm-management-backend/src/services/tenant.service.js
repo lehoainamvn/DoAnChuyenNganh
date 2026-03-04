@@ -1,11 +1,37 @@
 import {
   findTenantByEmail,
   createTenant,
-  assignTenantToRoom
+  assignTenantToRoom,
+  getTenantDashboardRepo,
+  getLatestInvoiceRepo,
+  getTenantNotificationsRepo,
 } from "../repositories/tenant.repo.js";
+
+import { getInvoiceDetailByTenantId } 
+from "../repositories/invoice.repo.js";
 
 import sql, { poolPromise } from "../config/db.js";
 
+import { getTenantStatisticsRepo } 
+from "../repositories/invoice.repo.js";
+
+export async function getTenantStatisticsService(tenantId) {
+  const rows = await getTenantStatisticsRepo(tenantId);
+
+  return {
+    electric: rows.map(r => ({
+      month: r.month,
+      used: r.electric_used
+    })),
+    water: rows.map(r => ({
+      month: r.month,
+      used: r.water_used
+    }))
+  };
+}
+export function getTenantInvoiceDetailService(tenantId, invoiceId) {
+  return getInvoiceDetailByTenantId(tenantId, invoiceId);
+}
 /* ===============================
    GÁN NGƯỜI THUÊ
 ================================ */
@@ -92,4 +118,44 @@ export async function removeTenantFromRoomService(ownerId, roomId) {
       WHERE id = @room_id
         AND owner_id = @owner_id
     `);
+}
+/* ===============================
+   DASHBOARD TENANT
+================================ */
+export async function getTenantDashboardService(tenantId) {
+  const dashboard = await getTenantDashboardRepo(tenantId);
+
+  if (!dashboard) {
+    throw new Error("Tenant chưa được gán phòng");
+  }
+
+  const latestInvoice = await getLatestInvoiceRepo(tenantId);
+  const notifications = await getTenantNotificationsRepo(tenantId);
+
+  return {
+    profile: {
+      id: dashboard.tenant_id,
+      name: dashboard.tenant_name,
+      email: dashboard.email,
+      phone: dashboard.phone
+    },
+    room: {
+      id: dashboard.room_id,
+      name: dashboard.room_name,
+      price: dashboard.room_price,
+      electric_price: dashboard.electric_price,
+      water_type: dashboard.water_type,
+      water_price: dashboard.water_price,
+      water_price_per_person: dashboard.water_price_per_person,
+      people_count: dashboard.people_count,
+      status: dashboard.status
+    },
+    house: {
+      id: dashboard.house_id,
+      name: dashboard.house_name,
+      address: dashboard.address
+    },
+    latest_invoice: latestInvoice || null,
+    notifications
+  };
 }

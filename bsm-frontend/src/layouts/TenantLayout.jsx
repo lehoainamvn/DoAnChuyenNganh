@@ -34,12 +34,13 @@ export default function TenantLayout() {
     navigate("/");
   }
 
-  const menu = [
-    { label: "Trang chủ", path: "/tenant/home", icon: "🏠" },
-    { label: "Phòng của tôi", path: "/tenant/room", icon: "🛏" },
-    { label: "Hóa đơn", path: "/tenant/invoices", icon: "🧾" },
-    { label: "Liên hệ chủ trọ", path: "/tenant/contact", icon: "💬" }
-  ];
+ const menu = [
+  { label: "Trang chủ", path: "/tenant/home", icon: "📊" },
+  { label: "Phòng của tôi", path: "/tenant/room", icon: "🛏" },
+  { label: "Hóa đơn", path: "/tenant/invoices", icon: "🧾" },
+  { label: "Thống kê", path: "/tenant/statistics", icon: "📈" },
+  { label: "Tin nhắn", path: "/tenant/messages", icon: "💬" },
+];
 
   return (
     <div className="flex min-h-screen bg-slate-100">

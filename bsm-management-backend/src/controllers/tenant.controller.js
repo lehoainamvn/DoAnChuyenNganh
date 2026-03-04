@@ -1,9 +1,39 @@
 import {
   assignTenantService,
   findTenantByEmailService,
-  removeTenantFromRoomService
+  removeTenantFromRoomService,
+  getTenantDashboardService,
+  getTenantInvoiceDetailService,
+  getTenantStatisticsService
 } from "../services/tenant.service.js";
 
+
+
+export async function getTenantStatisticsController(req, res) {
+  try {
+    const tenantId = req.user.id;
+
+    const data = await getTenantStatisticsService(tenantId);
+
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+/* =========================
+   DASHBOARD TENANT
+========================= */
+export async function getTenantDashboardController(req, res) {
+  try {
+    const tenantId = req.user.id;
+
+    const data = await getTenantDashboardService(tenantId);
+
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
 /* =========================
    TÌM NGƯỜI THUÊ THEO EMAIL
 ========================= */
@@ -41,6 +71,25 @@ export async function removeTenantFromRoomController(req, res) {
     await removeTenantFromRoomService(ownerId, roomId);
 
     res.json({ message: "Trả phòng thành công" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+export async function getTenantInvoiceDetail(req, res) {
+  try {
+    const tenantId = req.user.id;
+    const invoiceId = Number(req.params.id);
+
+    const invoice = await getTenantInvoiceDetailService(
+      tenantId,
+      invoiceId
+    );
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+    }
+
+    res.json(invoice);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

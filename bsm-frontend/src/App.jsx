@@ -17,12 +17,14 @@ import Revenue from "./pages/owner/Revenue";
 import MeterHistory from "./pages/owner/MeterHistory";
 import Profile from "./pages/owner/Profile";
 import ChangePassword from "./pages/owner/ChangePassword";
-
+import Messages from "./pages/owner/Messages";
 /* TENANT */
 import TenantHome from "./pages/tenant/TenantHome";
 import TenantRoom from "./pages/tenant/TenantRoom";
 import TenantInvoices from "./pages/tenant/TenantInvoices";
 import TenantContact from "./pages/tenant/TenantContact";
+import TenantInvoiceDetail from "./pages/tenant/TenantInvoiceDetail";
+import TenantStatistics from "./pages/tenant/TenantStatistics";
 
 /* LAYOUT */
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -59,6 +61,7 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/messages" element={<Messages />} />
       </Route>
 
       {/* ================= TENANT ================= */}
@@ -74,6 +77,9 @@ export default function App() {
         <Route path="room" element={<TenantRoom />} />
         <Route path="invoices" element={<TenantInvoices />} />
         <Route path="contact" element={<TenantContact />} />
+        <Route path="invoices/:id" element={<TenantInvoiceDetail />} />
+        <Route path="statistics" element={<TenantStatistics />} />
+        <Route path="messages" element={<TenantContact />} />
       </Route>
 
     </Routes>

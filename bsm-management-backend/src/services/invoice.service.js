@@ -2,7 +2,10 @@ import {
   createInvoiceRepo,
   getInvoicesByMonth,
   getInvoiceById,
-  markInvoicePaid
+  markInvoicePaid,
+  getInvoicesByTenantId,
+  getLatestInvoiceByTenantId,
+  getInvoiceDetailByTenantId 
 } from "../repositories/invoice.repo.js";
 
 /* =========================
@@ -15,7 +18,9 @@ export async function createInvoiceService(data) {
 
   await createInvoiceRepo(data);
 }
-
+export function getTenantInvoiceDetailService(tenantId, invoiceId) {
+  return getInvoiceDetailByTenantId(tenantId, invoiceId);
+}
 /* =========================
    LIST BY MONTH + HOUSE
 ========================= */
@@ -38,4 +43,11 @@ export async function markInvoicePaidService(ownerId, invoiceId) {
   if (!success) {
     throw new Error("Không thể cập nhật hóa đơn");
   }
+}
+export function getTenantInvoicesService(tenantId) {
+  return getInvoicesByTenantId(tenantId);
+}
+
+export function getTenantLatestInvoiceService(tenantId) {
+  return getLatestInvoiceByTenantId(tenantId);
 }

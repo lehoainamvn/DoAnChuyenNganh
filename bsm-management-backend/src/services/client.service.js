@@ -4,13 +4,16 @@ import {
   updateClient,
   deleteClient
 } from "../repositories/client.repo.js";
+import bcrypt from "bcryptjs";
 
 export async function getAllClientsService() {
   return await getAllClients();
 }
 
 export async function createClientService(data) {
-  await createClient(data);
+  const { name, email, phone, password } = data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await createClient({ name, email, phone, password: hashedPassword });
 }
 
 export async function updateClientService(id, data) {

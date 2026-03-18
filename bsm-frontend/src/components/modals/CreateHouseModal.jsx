@@ -1,8 +1,16 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import HouseMap from "./HouseMap";
 
 const API_URL = "http://localhost:5000/api/houses";
 
-export default function CreateHouseModal({ house, onClose, onSuccess }) {
+export default function CreateHouseModal({
+  house,
+  onClose,
+  onSuccess,
+  existingHouses = [],
+  excludeId,
+}) {
   const isEdit = Boolean(house);
 
   const createdRooms = house?.created_rooms || 0;
@@ -26,6 +34,22 @@ export default function CreateHouseModal({ house, onClose, onSuccess }) {
     }
   }, [house]);
 
+  function normalize(str) {
+    return (str || "").trim().toLowerCase();
+  }
+
+  function isDuplicate({ name, address }) {
+    const nameNorm = normalize(name);
+    const addressNorm = normalize(address);
+
+    return existingHouses.some((h) => {
+      if (excludeId && h.id === excludeId) return false;
+      if (nameNorm && normalize(h.name) === nameNorm) return true;
+      if (addressNorm && normalize(h.address) === addressNorm) return true;
+      return false;
+    });
+  }
+
   function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -38,10 +62,29 @@ export default function CreateHouseModal({ house, onClose, onSuccess }) {
     e.preventDefault();
     setError("");
 
+    if (!form.name?.trim()) {
+      setError("Tên nhà trọ không được để trống");
+      return;
+    }
+
+    if (!form.address?.trim()) {
+      setError("Địa chỉ không được để trống");
+      return;
+    }
+
+    if (!Number.isInteger(form.totalRooms) || form.totalRooms < 1) {
+      setError("Giới hạn số phòng phải là số nguyên lớn hơn 0");
+      return;
+    }
+
     if (isEdit && form.totalRooms < createdRooms) {
-      setError(
-        `Giới hạn phòng không được nhỏ hơn ${createdRooms} (đã tạo)`
-      );
+      setError(`Giới hạn phòng không được nhỏ hơn ${createdRooms} (đã tạo)`);
+      return;
+    }
+
+    if (isDuplicate(form)) {
+      setError("Tên hoặc địa chỉ nhà trọ đã tồn tại");
+      toast.error("Tên hoặc địa chỉ nhà trọ đã tồn tại");
       return;
     }
 
@@ -62,11 +105,13 @@ export default function CreateHouseModal({ house, onClose, onSuccess }) {
       );
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message);
+      if (!res.ok) throw new Error(data.message || "Lỗi server");
 
       onSuccess();
     } catch (err) {
-      setError(err.message);
+      const message = err.message || "Có lỗi xảy ra";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -105,8 +150,14 @@ export default function CreateHouseModal({ house, onClose, onSuccess }) {
               onChange={handleChange}
               required
               className="w-full mt-1 rounded-xl border px-4 py-2"
+              placeholder="Nhập địa chỉ hoặc dán từ Google Maps"
             />
+            <p className="text-xs text-slate-500 mt-1">
+              Bạn có thể lấy địa chỉ từ <a href="https://www.google.com/maps" target="_blank" rel="noreferrer" className="underline">Google Maps</a>.
+            </p>
           </div>
+
+          {form.address?.trim() && <HouseMap address={form.address} />}
 
           <div>
             <label className="text-sm font-medium">

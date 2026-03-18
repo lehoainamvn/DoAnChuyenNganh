@@ -1,5 +1,8 @@
 const API_BASE_URL = "http://localhost:5000/api/auth";
 
+/**
+ * LOGIN (GIỮ NGUYÊN)
+ */
 export const login = async ({ phone, password }) => {
   const res = await fetch(`${API_BASE_URL}/login`, {
     method: "POST",
@@ -7,7 +10,7 @@ export const login = async ({ phone, password }) => {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      identifier: phone,   // ✅ QUAN TRỌNG
+      identifier: phone,
       password
     })
   });
@@ -19,8 +22,9 @@ export const login = async ({ phone, password }) => {
 
   return res.json();
 };
+
 /**
- * REGISTER
+ * REGISTER (GIỮ NGUYÊN)
  */
 export async function registerApi(user) {
   const res = await fetch(`${API_BASE_URL}/register`, {
@@ -35,6 +39,48 @@ export async function registerApi(user) {
 
   if (!res.ok) {
     throw new Error(data.message || "Đăng ký thất bại");
+  }
+
+  return data;
+}
+
+/**
+ * 📩 FORGOT PASSWORD (GỬI OTP)
+ */
+export async function forgotPasswordApi(email) {
+  const res = await fetch(`${API_BASE_URL}/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Gửi OTP thất bại");
+  }
+
+  return data;
+}
+
+/**
+ * 🔄 RESET PASSWORD
+ */
+export async function resetPasswordApi({ email, otp, newPassword }) {
+  const res = await fetch(`${API_BASE_URL}/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email, otp, newPassword })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Đổi mật khẩu thất bại");
   }
 
   return data;

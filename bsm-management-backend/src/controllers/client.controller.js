@@ -18,11 +18,11 @@ export async function getClients(req, res) {
 /* ===== POST ===== */
 export async function createClient(req, res) {
   try {
-    const { name, email, phone } = req.body;
-    if (!name || !phone) {
+    const { name, email, phone, password } = req.body;
+    if (!name || !phone || !password) {
       return res.status(400).json({ message: "Thiếu dữ liệu" });
     }
-    await createClientService({ name, email, phone });
+    await createClientService({ name, email, phone, password });
     res.status(201).json({ message: "Đã tạo khách thuê" });
   } catch {
     res.status(500).json({ message: "Lỗi server" });

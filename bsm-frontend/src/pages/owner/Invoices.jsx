@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { getInvoicesByMonth } from "../../api/invoice.api";
 import { getHouses } from "../../api/house.api";
+import { FileText, Send, Copy, X } from "lucide-react";
 
 export default function Invoices() {
   const navigate = useNavigate();
@@ -127,21 +128,29 @@ Vui lòng thanh toán trước ngày 10.`;
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
 
-        <h1 className="text-3xl font-extrabold text-slate-800">
-          Danh sách hóa đơn
-        </h1>
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Quản lý hóa đơn
+            </h1>
+            <p className="text-sm text-slate-500">
+              Xem và quản lý danh sách hóa đơn
+            </p>
+          </div>
+        </div>
 
         {/* ================= FILTER BOX ================= */}
-        <div className="bg-white rounded-3xl shadow-md p-6 flex flex-wrap gap-4 items-center">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 flex flex-wrap gap-4 items-center">
 
           {/* YEAR */}
           <select
             value={year}
             onChange={(e) => setYear(+e.target.value)}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             {Array.from({ length: 6 }, (_, i) => currentYear - 3 + i)
               .map((y) => (
@@ -153,7 +162,7 @@ Vui lòng thanh toán trước ngày 10.`;
           <select
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             {months.map((m) => (
               <option key={m} value={m}>
@@ -166,7 +175,7 @@ Vui lòng thanh toán trước ngày 10.`;
           <select
             value={houseId}
             onChange={(e) => setHouseId(e.target.value)}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             <option value="">Tất cả nhà</option>
             {houses.map((h) => (
@@ -180,7 +189,7 @@ Vui lòng thanh toán trước ngày 10.`;
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             <option value="ALL">Tất cả trạng thái</option>
             <option value="UNPAID">Chưa thanh toán</option>
@@ -189,21 +198,21 @@ Vui lòng thanh toán trước ngày 10.`;
 
           <button
             onClick={handleFetch}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-semibold transition"
           >
             Lọc
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-2xl">
             {error}
           </div>
         )}
 
         {/* ================= TABLE ================= */}
         {!loading && filteredInvoices.length > 0 && (
-          <div className="bg-white rounded-3xl shadow overflow-hidden">
+          <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-slate-100">
                 <tr>
@@ -246,7 +255,7 @@ Vui lòng thanh toán trước ngày 10.`;
                         onClick={() =>
                           navigate(`/invoices/${i.id}`)
                         }
-                        className="text-indigo-600 font-semibold"
+                        className="text-indigo-600 hover:text-indigo-700 font-semibold transition"
                       >
                         Chi tiết
                       </button>
@@ -254,7 +263,7 @@ Vui lòng thanh toán trước ngày 10.`;
                       <button
                         onClick={() => setZaloInvoice(i)}
                         className="bg-blue-500 hover:bg-blue-600 text-white
-                                   px-3 py-1 rounded-lg text-xs font-semibold"
+                                   px-3 py-1 rounded-lg text-xs font-semibold transition"
                       >
                         Gửi Zalo
                       </button>
@@ -267,17 +276,19 @@ Vui lòng thanh toán trước ngày 10.`;
         )}
 
         {!loading && filteredInvoices.length === 0 && (
-          <p className="text-slate-500 text-center">
-            Không có hóa đơn
-          </p>
+          <div className="text-center py-12 text-slate-500">
+            <FileText size={48} className="mx-auto mb-4 text-slate-300" />
+            <p>Không có hóa đơn</p>
+          </div>
         )}
       </div>
 
       {/* ================= MODAL ================= */}
       {zaloInvoice && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-md p-6 rounded-3xl shadow-xl space-y-4">
-            <h2 className="text-lg font-bold">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-sm hover:shadow-md transition space-y-4">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <Send size={20} />
               Nội dung gửi Zalo
             </h2>
 
@@ -290,22 +301,25 @@ Vui lòng thanh toán trước ngày 10.`;
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setZaloInvoice(null)}
-                className="px-4 py-2 border rounded-xl"
+                className="flex items-center gap-2 px-4 py-2 border rounded-xl hover:bg-slate-50 transition"
               >
+                <X size={16} />
                 Đóng
               </button>
 
               <button
                 onClick={handleCopy}
-                className="px-4 py-2 bg-emerald-500 text-white rounded-xl"
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition"
               >
+                <Copy size={16} />
                 Copy
               </button>
 
               <button
                 onClick={handleOpenZalo}
-                className="px-4 py-2 bg-blue-600 text-white rounded-xl"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition"
               >
+                <Send size={16} />
                 Mở Zalo
               </button>
             </div>

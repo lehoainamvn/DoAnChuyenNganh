@@ -247,28 +247,24 @@ export default function RoomDetail() {
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center
-                      bg-gradient-to-br from-indigo-50 via-white to-pink-50
-                      text-slate-400">
+      <div className="min-h-screen flex items-center justify-center text-slate-400">
         Đang tải...
       </div>
     );
 
   if (!room)
     return (
-      <div className="min-h-screen flex items-center justify-center
-                      bg-gradient-to-br from-indigo-50 via-white to-pink-50
-                      text-red-500">
+      <div className="min-h-screen flex items-center justify-center text-red-500">
         Không tìm thấy phòng
       </div>
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50">
+    <div className="min-h-screen">
       <div className="max-w-6xl mx-auto px-6 py-12 space-y-10">
 
         {/* HEADER */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 flex justify-between items-center">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 flex justify-between items-center">
           {!editingName ? (
             <div>
               <h1 className="text-3xl font-bold text-slate-800">
@@ -309,7 +305,7 @@ export default function RoomDetail() {
 
         {/* GRID */}
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 space-y-4">
+          <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 space-y-4">
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-lg">💸 Giá dịch vụ</h3>
               {!editingPrice && (
@@ -446,7 +442,7 @@ export default function RoomDetail() {
           )}
           </div>
 
-          <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 space-y-4">
+          <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 space-y-4">
             <h3 className="font-semibold text-lg">👤 Người thuê</h3>
 
             {room.tenant ? (

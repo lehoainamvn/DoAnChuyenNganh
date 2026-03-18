@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-
+import TenantAIChatBox from "../components/TenantAIChatBox";
 export default function TenantLayout() {
   const navigate = useNavigate();
   const userMenuRef = useRef(null);
@@ -151,6 +151,7 @@ export default function TenantLayout() {
         </main>
 
       </div>
+      <TenantAIChatBox />
     </div>
   );
 }

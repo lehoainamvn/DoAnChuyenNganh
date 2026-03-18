@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getInvoiceById, markInvoicePaid } from "../../api/invoice.api";
+import toast from "react-hot-toast";
 
 export default function InvoiceDetail() {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export default function InvoiceDetail() {
         setInvoice(data);
       } catch (err) {
         setError(err.message || "Không tải được hóa đơn");
+        toast.error(err.message || "Không tải được hóa đơn");
       } finally {
         setLoading(false);
       }
@@ -35,8 +37,9 @@ export default function InvoiceDetail() {
         status: "PAID",
         paid_at: new Date().toISOString()
       });
+      toast.success("Đã cập nhật trạng thái hóa đơn thành công");
     } catch (err) {
-      alert(err.message || "Cập nhật thất bại");
+      toast.error(err.message || "Cập nhật thất bại");
     }
   }
 

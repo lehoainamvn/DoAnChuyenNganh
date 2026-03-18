@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { getMeterHistory } from "../../api/meter.api";
 import { getHouses } from "../../api/house.api";
-import { getRoomsByHouse } from "../../api/room.api"; // cần có API này
+import { getRoomsByHouse } from "../../api/room.api";
+import { Activity, Filter } from "lucide-react";
 
 export default function MeterHistory() {
   const currentYear = new Date().getFullYear();
@@ -76,21 +77,29 @@ export default function MeterHistory() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
 
-        <h1 className="text-3xl font-extrabold text-slate-800">
-          Lịch sử điện nước
-        </h1>
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Lịch sử điện nước
+            </h1>
+            <p className="text-sm text-slate-500">
+              Xem lịch sử sử dụng điện và nước
+            </p>
+          </div>
+        </div>
 
         {/* FILTER */}
-        <div className="bg-white rounded-3xl shadow-md p-6 flex flex-wrap gap-4 items-end">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 flex flex-wrap gap-4 items-end">
 
           {/* YEAR */}
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             {Array.from({ length: 6 }, (_, i) => currentYear - 3 + i)
               .map((y) => (
@@ -102,7 +111,7 @@ export default function MeterHistory() {
           <select
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             <option value="">Tất cả tháng</option>
             {months.map((m) => (
@@ -116,7 +125,7 @@ export default function MeterHistory() {
           <select
             value={houseId}
             onChange={(e) => setHouseId(e.target.value)}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             <option value="">Tất cả nhà</option>
             {houses.map((h) => (
@@ -131,7 +140,7 @@ export default function MeterHistory() {
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
             disabled={!houseId}
-            className="border px-4 py-2 rounded-xl"
+            className="border px-4 py-2 rounded-xl bg-white"
           >
             <option value="">Tất cả phòng</option>
             {rooms.map((r) => (
@@ -143,16 +152,16 @@ export default function MeterHistory() {
 
           <button
             onClick={fetchData}
-            className="bg-indigo-600 hover:bg-indigo-700
-                       text-white px-6 py-2 rounded-xl font-semibold"
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-semibold transition"
           >
+            <Filter size={16} />
             Lọc
           </button>
 
         </div>
 
         {/* TABLE */}
-        <div className="bg-white rounded-3xl shadow-md overflow-hidden">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-slate-100">
               <tr>
@@ -182,7 +191,8 @@ export default function MeterHistory() {
 
           {filteredData.length === 0 && (
             <div className="p-10 text-center text-slate-500">
-              Không có dữ liệu
+              <Activity size={48} className="mx-auto mb-4 text-slate-300" />
+              <p>Không có dữ liệu</p>
             </div>
           )}
         </div>

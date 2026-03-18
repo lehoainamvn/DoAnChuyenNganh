@@ -20,6 +20,8 @@ import {
 } from "chart.js";
 import { Bar, Doughnut } from "react-chartjs-2";
 
+import { Download, TrendingUp } from "lucide-react";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -55,7 +57,7 @@ function MiniDonut({ value, total, color }) {
 /* ================= STAT CARD ================= */
 function StatCard({ title, value, total, color, suffix = "" }) {
   return (
-    <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 text-center space-y-3">
+    <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 text-center space-y-3">
       <p className="text-sm text-slate-500">{title}</p>
       <MiniDonut value={value} total={total} color={color} />
       <p className="text-2xl font-extrabold text-slate-800">
@@ -187,25 +189,33 @@ export default function Revenue() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-      <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+    <div className="min-h-screen">
+      <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
 
-        <h1 className="text-3xl font-extrabold text-slate-800">
-          Thống kê doanh thu
-        </h1>
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Thống kê doanh thu
+            </h1>
+            <p className="text-sm text-slate-500">
+              Xem báo cáo và thống kê doanh thu
+            </p>
+          </div>
+        </div>
 
         {/* FILTER + OPTIONS */}
-        <div className="bg-white rounded-3xl shadow-md p-6 space-y-4">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 space-y-4">
 
           <div className="flex flex-wrap gap-4 items-center">
             <select value={year} onChange={(e)=>setYear(+e.target.value)}
-              className="border px-4 py-2 rounded-xl">
+              className="border px-4 py-2 rounded-xl bg-white">
               {Array.from({ length: 6 }, (_, i) => currentYear - 3 + i)
                 .map(y => <option key={y}>{y}</option>)}
             </select>
 
             <select value={houseId} onChange={(e)=>setHouseId(e.target.value)}
-              className="border px-4 py-2 rounded-xl">
+              className="border px-4 py-2 rounded-xl bg-white">
               <option value="">Tất cả nhà</option>
               {houses.map(h=>(
                 <option key={h.id} value={h.id}>{h.name}</option>
@@ -213,7 +223,7 @@ export default function Revenue() {
             </select>
 
             <select value={month} onChange={(e)=>setMonth(e.target.value)}
-              className="border px-4 py-2 rounded-xl">
+              className="border px-4 py-2 rounded-xl bg-white">
               <option value="">Tất cả tháng</option>
               {months.map(m=>(
                 <option key={m} value={m}>Tháng {m}</option>
@@ -222,9 +232,10 @@ export default function Revenue() {
 
             <button
               onClick={exportExcel}
-              className="ml-auto bg-emerald-500 hover:bg-emerald-600
-                         text-white px-6 py-2 rounded-xl font-semibold">
-              ⬇ Xuất Excel
+              className="ml-auto flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-2 rounded-xl font-semibold transition"
+            >
+              <Download size={16} />
+              Xuất Excel
             </button>
           </div>
 
@@ -293,8 +304,11 @@ export default function Revenue() {
               />
             )}
 
-            <div className="bg-white rounded-3xl shadow-md p-6 text-center">
-              <p className="text-sm text-slate-500">Doanh thu năm</p>
+            <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <TrendingUp className="text-indigo-600" size={20} />
+                <p className="text-sm text-slate-500">Doanh thu năm</p>
+              </div>
               <p className="text-2xl font-extrabold text-indigo-600">
                 {totalYearRevenue.toLocaleString("vi-VN")} đ
               </p>
@@ -303,11 +317,12 @@ export default function Revenue() {
         )}
 
         {/* CHART */}
-        <div className="bg-white rounded-3xl shadow-md p-8">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-8">
           <Bar data={chartData} />
         </div>
-             {/* TABLE */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md overflow-hidden">
+
+        {/* TABLE */}
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
           <table className="w-full">
             <thead className="bg-slate-100">
               <tr>
@@ -330,9 +345,10 @@ export default function Revenue() {
           </table>
 
           {!loading && tableData.length === 0 && (
-            <p className="p-6 text-slate-500 text-center">
-              Không có dữ liệu
-            </p>
+            <div className="p-10 text-center text-slate-500">
+              <TrendingUp size={48} className="mx-auto mb-4 text-slate-300" />
+              <p>Không có dữ liệu</p>
+            </div>
           )}
         </div>
       </div>

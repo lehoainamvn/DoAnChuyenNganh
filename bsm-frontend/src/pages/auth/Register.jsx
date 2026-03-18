@@ -4,85 +4,165 @@ import { registerApi } from "../../api/auth.api";
 import toast from "react-hot-toast";
 
 export default function Register() {
+
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
-    role: "OWNER"
+  const [form,setForm] = useState({
+    name:"",
+    phone:"",
+    email:"",
+    password:"",
+    confirmPassword:"",
+    role:"OWNER"
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading,setLoading] = useState(false);
 
   /* ================= CAPTCHA ================= */
-  const [num1, setNum1] = useState(0);
-  const [num2, setNum2] = useState(0);
-  const [captchaAnswer, setCaptchaAnswer] = useState("");
 
-  const generateCaptcha = () => {
-    const a = Math.floor(Math.random() * 10) + 1;
-    const b = Math.floor(Math.random() * 10) + 1;
+  const [num1,setNum1] = useState(0);
+  const [num2,setNum2] = useState(0);
+  const [captchaAnswer,setCaptchaAnswer] = useState("");
+
+  function generateCaptcha(){
+    const a = Math.floor(Math.random()*10)+1;
+    const b = Math.floor(Math.random()*10)+1;
+
     setNum1(a);
     setNum2(b);
     setCaptchaAnswer("");
-  };
+  }
 
-  useEffect(() => {
+  useEffect(()=>{
     generateCaptcha();
-  }, []);
+  },[]);
 
   /* ================= FORM ================= */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  function handleChange(e){
+    const {name,value} = e.target;
 
-    if (!form.name || !form.phone || !form.password) {
-      return toast.error("Vui lòng nhập đầy đủ thông tin");
+    setForm(prev=>({
+      ...prev,
+      [name]:value
+    }));
+  }
+
+  /* ================= VALIDATE ================= */
+
+  function validate(){
+
+    if(!form.name.trim()){
+      toast.error("Vui lòng nhập họ và tên");
+      return false;
     }
 
-    if (form.password !== form.confirmPassword) {
-      return toast.error("Mật khẩu nhập lại không khớp");
+    if(form.name.trim().length < 3){
+      toast.error("Tên phải tối thiểu 3 ký tự");
+      return false;
     }
 
-    if (Number(captchaAnswer) !== num1 + num2) {
+    if(!form.phone){
+      toast.error("Vui lòng nhập số điện thoại");
+      return false;
+    }
+
+    if(!/^[0-9]+$/.test(form.phone)){
+      toast.error("Số điện thoại chỉ được chứa số");
+      return false;
+    }
+
+    if(form.phone.length < 10 || form.phone.length > 11){
+      toast.error("Số điện thoại phải từ 10 - 11 số");
+      return false;
+    }
+
+    // ===== EMAIL VALID =====
+    if(!form.email){
+      toast.error("Vui lòng nhập email");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!emailRegex.test(form.email)){
+      toast.error("Email không hợp lệ");
+      return false;
+    }
+
+    if(!form.password){
+      toast.error("Vui lòng nhập mật khẩu");
+      return false;
+    }
+
+    if(form.password.length < 6){
+      toast.error("Mật khẩu phải tối thiểu 6 ký tự");
+      return false;
+    }
+
+    if(form.password !== form.confirmPassword){
+      toast.error("Mật khẩu nhập lại không khớp");
+      return false;
+    }
+
+    if(Number(captchaAnswer) !== num1 + num2){
       toast.error("Captcha không đúng");
       generateCaptcha();
-      return;
+      return false;
     }
 
-    try {
+    return true;
+  }
+
+  /* ================= SUBMIT ================= */
+
+  async function handleSubmit(e){
+
+    e.preventDefault();
+
+    if(!validate()) return;
+
+    try{
+
       setLoading(true);
 
-      await registerApi({
-        name: form.name,
-        phone: form.phone,
-        email: `${form.phone}@bsm.local`,
-        password: form.password,
-        role: form.role
-      });
+      await toast.promise(
 
-      toast.success("Đăng ký thành công!");
-      setTimeout(() => navigate("/"), 800);
+        registerApi({
+          name:form.name,
+          phone:form.phone,
+          email:form.email, // ✅ dùng email thật
+          password:form.password,
+          role:form.role
+        }),
 
-    } catch (err) {
+        {
+          loading:"Đang đăng ký...",
+          success:"Đăng ký thành công",
+          error:"Đăng ký thất bại"
+        }
+
+      );
+
+      setTimeout(()=>{
+        navigate("/");
+      },800);
+
+    }catch(err){
       toast.error(err?.message || "Đăng ký thất bại");
-    } finally {
+    }finally{
       setLoading(false);
     }
-  };
+
+  }
 
   return (
+
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-50 to-indigo-50 flex items-center justify-center px-4">
 
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl overflow-hidden grid md:grid-cols-2">
 
-        {/* LEFT PANEL */}
+        {/* LEFT */}
         <div className="hidden md:flex flex-col justify-center bg-white border-r p-10 space-y-6">
           <h1 className="text-3xl font-extrabold text-slate-800">
             BSM Management
@@ -91,51 +171,39 @@ export default function Register() {
           <p className="text-slate-500">
             Hệ thống quản lý nhà trọ chuyên nghiệp
           </p>
-
-          <div className="space-y-3 text-sm text-slate-600">
-            <p>✔ Quản lý phòng & khách thuê</p>
-            <p>✔ Theo dõi hóa đơn</p>
-            <p>✔ Thống kê doanh thu</p>
-            <p>✔ Gửi hóa đơn qua Zalo</p>
-          </div>
         </div>
 
-        {/* RIGHT PANEL */}
+        {/* RIGHT */}
         <div className="p-10 space-y-6">
 
-          <div>
-            <h2 className="text-2xl font-bold text-slate-800">
-              Tạo tài khoản
-            </h2>
-            <p className="text-sm text-slate-500">
-              Chọn loại tài khoản phù hợp
-            </p>
-          </div>
+          <h2 className="text-2xl font-bold text-slate-800">
+            Tạo tài khoản
+          </h2>
 
           {/* ROLE */}
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
-              onClick={() => setForm({ ...form, role: "OWNER" })}
-              className={`p-4 rounded-2xl border transition text-left ${
-                form.role === "OWNER"
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-slate-200"
+              onClick={()=>setForm({...form,role:"OWNER"})}
+              className={`p-4 rounded-2xl border ${
+                form.role==="OWNER"
+                ? "border-indigo-500 bg-indigo-50"
+                : "border-slate-200"
               }`}
             >
-              <p className="font-semibold text-slate-800">Chủ trọ</p>
+              Chủ trọ
             </button>
 
             <button
               type="button"
-              onClick={() => setForm({ ...form, role: "TENANT" })}
-              className={`p-4 rounded-2xl border transition text-left ${
-                form.role === "TENANT"
-                  ? "border-indigo-500 bg-indigo-50"
-                  : "border-slate-200"
+              onClick={()=>setForm({...form,role:"TENANT"})}
+              className={`p-4 rounded-2xl border ${
+                form.role==="TENANT"
+                ? "border-indigo-500 bg-indigo-50"
+                : "border-slate-200"
               }`}
             >
-              <p className="font-semibold text-slate-800">Người thuê</p>
+              Người thuê
             </button>
           </div>
 
@@ -148,8 +216,7 @@ export default function Register() {
               placeholder="Họ và tên"
               value={form.name}
               onChange={handleChange}
-              className="w-full border px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-              required
+              className="w-full border px-4 py-3 rounded-xl"
             />
 
             <input
@@ -158,8 +225,17 @@ export default function Register() {
               placeholder="Số điện thoại"
               value={form.phone}
               onChange={handleChange}
-              className="w-full border px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-              required
+              className="w-full border px-4 py-3 rounded-xl"
+            />
+
+            {/* ===== EMAIL INPUT MỚI ===== */}
+            <input
+              type="email"
+              name="email"
+              placeholder="Email (dùng để nhận OTP)"
+              value={form.email}
+              onChange={handleChange}
+              className="w-full border px-4 py-3 rounded-xl"
             />
 
             <input
@@ -168,8 +244,7 @@ export default function Register() {
               placeholder="Mật khẩu"
               value={form.password}
               onChange={handleChange}
-              className="w-full border px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-              required
+              className="w-full border px-4 py-3 rounded-xl"
             />
 
             <input
@@ -178,44 +253,28 @@ export default function Register() {
               placeholder="Nhập lại mật khẩu"
               value={form.confirmPassword}
               onChange={handleChange}
-              className="w-full border px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-              required
+              className="w-full border px-4 py-3 rounded-xl"
             />
 
             {/* CAPTCHA */}
-            <div className="bg-slate-50 p-4 rounded-xl border space-y-2">
-              <p className="text-sm text-slate-600 font-medium">
-                Xác minh bạn không phải robot
-              </p>
-
+            <div className="bg-slate-50 p-4 rounded-xl border">
               <div className="flex items-center gap-3">
-                <div className="text-lg font-bold text-indigo-600">
+                <div className="font-bold text-indigo-600">
                   {num1} + {num2} = ?
                 </div>
 
                 <input
                   type="number"
                   value={captchaAnswer}
-                  onChange={(e) => setCaptchaAnswer(e.target.value)}
-                  className="w-24 border px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                  required
+                  onChange={(e)=>setCaptchaAnswer(e.target.value)}
+                  className="w-24 border px-3 py-2 rounded-lg"
                 />
-
-                <button
-                  type="button"
-                  onClick={generateCaptcha}
-                  className="text-xs text-indigo-600 hover:underline"
-                >
-                  Đổi
-                </button>
               </div>
             </div>
 
             <button
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700
-                         text-white py-3 rounded-xl font-semibold
-                         transition disabled:opacity-60"
+              className="w-full bg-indigo-600 text-white py-3 rounded-xl"
             >
               {loading ? "Đang đăng ký..." : "Đăng ký"}
             </button>
@@ -224,13 +283,16 @@ export default function Register() {
 
           <p className="text-sm text-center">
             Đã có tài khoản?{" "}
-            <Link to="/" className="text-indigo-600 font-medium hover:underline">
+            <Link to="/" className="text-indigo-600">
               Đăng nhập
             </Link>
           </p>
 
         </div>
+
       </div>
+
     </div>
+
   );
 }

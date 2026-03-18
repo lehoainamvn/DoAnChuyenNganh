@@ -181,9 +181,12 @@ export default function Login() {
               Tạo tài khoản
             </Link>
 
-            <button className="text-slate-500 hover:text-indigo-600">
+           <Link
+              to="/forgot"
+              className="text-slate-500 hover:text-indigo-600"
+            >
               Quên mật khẩu?
-            </button>
+            </Link>
           </div>
 
         </div>

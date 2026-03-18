@@ -13,15 +13,16 @@ export async function getAllClients() {
 }
 
 /* ===== CREATE ===== */
-export async function createClient({ name, email, phone }) {
+export async function createClient({ name, email, phone, password }) {
   const pool = await poolPromise;
   await pool.request()
     .input("name", sql.NVarChar, name)
     .input("email", sql.NVarChar, email)
     .input("phone", sql.NVarChar, phone)
+    .input("password", sql.NVarChar, password)
     .query(`
       INSERT INTO users (name, email, phone, role, password)
-      VALUES (@name, @email, @phone, 'TENANT', '123456')
+      VALUES (@name, @email, @phone, 'TENANT', @password)
     `);
 }
 

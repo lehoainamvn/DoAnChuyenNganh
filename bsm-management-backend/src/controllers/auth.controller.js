@@ -1,4 +1,5 @@
-import { loginService, registerService } from "../services/auth.service.js";
+import { loginService, registerService, forgotPasswordService,
+  resetPasswordService } from "../services/auth.service.js";
 
 /* ================= LOGIN ================= */
 export async function login(req, res) {
@@ -54,3 +55,23 @@ export async function register(req, res) {
     });
   }
 }
+
+export const forgotPassword = async (req, res) => {
+  try {
+    await forgotPasswordService(req.body.email);
+    res.json({ message: "Đã gửi OTP" });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+};
+export const resetPassword = async (req, res) => {
+  try {
+    const result = await resetPasswordService(req.body);
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    });
+  }
+};

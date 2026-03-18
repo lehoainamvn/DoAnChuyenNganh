@@ -38,3 +38,4 @@ export async function updateProfile({ name, phone }) {
   if (!res.ok) throw new Error(data.message || "Update failed");
   return data;
 }
+

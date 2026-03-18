@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Zap, Droplet, Home, Wrench, Save, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function RoomBill() {
   const { state } = useLocation();
@@ -8,14 +10,14 @@ export default function RoomBill() {
 
   if (!room) {
     return (
-      <div className="min-h-screen flex items-center justify-center
-                      bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-        <div className="bg-white rounded-3xl shadow-md p-10 text-center">
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-10 text-center">
           <p className="mb-6 text-slate-600">Không có dữ liệu phòng</p>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-2 bg-indigo-500 text-white rounded-xl font-semibold"
+            className="flex items-center gap-2 px-6 py-2 bg-indigo-500 text-white rounded-xl font-semibold"
           >
+            <ArrowLeft size={16} />
             Quay lại
           </button>
         </div>
@@ -94,12 +96,15 @@ export default function RoomBill() {
         }),
       });
 
-      if (!res.ok) throw new Error("Lưu hóa đơn thất bại");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Lưu hóa đơn thất bại");
+      }
 
-      alert("✅ Đã lưu hóa đơn");
+      toast.success("Đã lưu hóa đơn");
       navigate(-1);
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -107,32 +112,45 @@ export default function RoomBill() {
 
   /* ===== UI ===== */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-pink-50">
-      <div className="max-w-4xl mx-auto px-6 py-12 space-y-10">
+    <div className="min-h-screen">
+      <div className="max-w-4xl mx-auto px-6 py-12 space-y-8">
 
         {/* HEADER */}
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800">
-            🧾 Hóa đơn phòng {room.room_name}
-          </h1>
-          <p className="text-slate-500 text-sm">
-            Tháng {monthStr}
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">
+              Tính tiền phòng {room.room_name}
+            </h1>
+            <p className="text-sm text-slate-500">
+              Tháng {monthStr}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-4 py-2 border rounded-lg text-slate-700 hover:bg-slate-50"
+          >
+            <ArrowLeft size={16} />
+            Quay lại
+          </button>
         </div>
 
         {/* ROOM PRICE */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6">
-          <p className="text-slate-600">
-            🏠 Tiền phòng
-          </p>
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Home className="text-indigo-600" size={20} />
+            <p className="text-slate-600 font-semibold">Tiền phòng</p>
+          </div>
           <p className="text-2xl font-bold text-slate-800">
             {money(room.room_price)}
           </p>
         </div>
 
         {/* ELECTRIC */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 space-y-3">
-          <h2 className="font-semibold text-lg">⚡ Điện</h2>
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Zap className="text-yellow-500" size={20} />
+            <h2 className="font-semibold text-lg">Điện</h2>
+          </div>
           <input
             type="number"
             placeholder="Số cũ"
@@ -151,8 +169,11 @@ export default function RoomBill() {
         </div>
 
         {/* WATER */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 space-y-3">
-          <h2 className="font-semibold text-lg">🚰 Nước</h2>
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Droplet className="text-blue-500" size={20} />
+            <h2 className="font-semibold text-lg">Nước</h2>
+          </div>
 
           <select
             value={waterType}
@@ -196,8 +217,11 @@ export default function RoomBill() {
         </div>
 
         {/* SERVICE */}
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-md p-6 space-y-3">
-          <h2 className="font-semibold text-lg">🧹 Dịch vụ</h2>
+        <div className="bg-white border rounded-2xl shadow-sm hover:shadow-md transition p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Wrench className="text-green-500" size={20} />
+            <h2 className="font-semibold text-lg">Dịch vụ</h2>
+          </div>
           <input
             type="number"
             placeholder="Tiền dịch vụ"
@@ -207,7 +231,7 @@ export default function RoomBill() {
         </div>
 
         {/* TOTAL */}
-        <div className="bg-indigo-600 text-white rounded-3xl p-8 shadow-lg">
+        <div className="bg-indigo-600 text-white rounded-2xl p-8 shadow-sm hover:shadow-md transition">
           <p className="text-sm opacity-80">Tổng tiền cần thu</p>
           <p className="text-3xl font-extrabold mt-1">
             {money(total)}
@@ -218,10 +242,10 @@ export default function RoomBill() {
         <button
           onClick={handleSaveInvoice}
           disabled={saving}
-          className="w-full bg-emerald-500 hover:bg-emerald-600
-                     text-white py-3 rounded-xl font-bold transition"
+          className="w-full flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-bold transition"
         >
-          💾 {saving ? "Đang lưu..." : "Lưu hóa đơn"}
+          <Save size={16} />
+          {saving ? "Đang lưu..." : "Lưu hóa đơn"}
         </button>
       </div>
     </div>

@@ -157,3 +157,10 @@ CREATE TABLE payments (
     FOREIGN KEY (invoice_id) REFERENCES invoices(id)
 );
 
+CREATE TABLE Otps (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    email NVARCHAR(255) NOT NULL,
+    otp NVARCHAR(10) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE()
+);
+

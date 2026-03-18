@@ -67,36 +67,37 @@ const [isOwnerOnline, setIsOwnerOnline] = useState(false);
 
   /* SEND MESSAGE */
 
-  async function sendMessage() {
+ async function sendMessage() {
 
-    if (!content.trim()) return;
+  if (!content.trim()) return;
 
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-    const payload = {
-      room_id: roomId,
-      receiver_id: ownerId,
-      content
-    };
+  const payload = {
+    room_id: roomId,
+    receiver_id: ownerId,
+    content
+  };
 
-    const res = await fetch(`${API_URL}/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
+  const res = await fetch(`${API_URL}/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(payload)
+  });
 
-    const savedMessage = await res.json();
+  const savedMessage = await res.json();
 
-    socket.emit("send_message", savedMessage);
+  socket.emit("send_message", savedMessage);
 
-    setMessages(prev => [...prev, savedMessage]);
+  /* ❌ XÓA DÒNG NÀY */
+  // setMessages(prev => [...prev, savedMessage]);
 
-    setContent("");
+  setContent("");
 
-  }
+}
 
   return (
     <div className="flex flex-col h-[680px] bg-white rounded-2xl shadow-lg border overflow-hidden">

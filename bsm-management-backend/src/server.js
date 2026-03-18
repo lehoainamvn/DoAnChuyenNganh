@@ -16,10 +16,16 @@ import profileRoutes from "./routes/profile.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import aiRoutes from "./routes/ai.route.js";
+import aiTenantRoutes from "./routes/aiTenant.route.js"
+import predictRoute from "./routes/predict.route.js";
 
+/* ✅ IMPORT ĐÚNG */
+import { verifyMail } from "./config/mail.js";
 
 dotenv.config();
 
+/* ✅ VERIFY SMTP */
+verifyMail();
 const app = express();
 const server = http.createServer(app);
 /* SOCKET */
@@ -72,7 +78,8 @@ app.use("/api/rooms", roomRoutes);
 app.use("/api/meters", meterRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/ai", aiRoutes);
-
+app.use("/api/ai-tenant",aiTenantRoutes)
+app.use("/api", predictRoute);
 
 // ===== START SERVER =====
 /* START SERVER */

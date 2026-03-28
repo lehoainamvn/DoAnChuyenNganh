@@ -1,180 +1,59 @@
 import { poolPromise } from "../config/db.js";
-import { normalChat } from "../services/ai.service.js";
+import { generateSQL, generateHumanResponse } from "../services/ai.service.js";
 import { saveMessage } from "../services/chat.service.js";
 
-export async function chatWithAI(req,res){
+export async function chatWithAI(req, res) {
+  try {
+    const { question } = req.body;
+    if (!question) return res.status(400).json({ reply: "Vui lòng nhập câu hỏi." });
 
-  try{
-
-    const {message} = req.body;
-    const msg = message.toLowerCase().trim();
-
-    const userId = 1; // demo
-
+    const msg = question.toLowerCase().trim();
+    const userId = req.user.id; 
     const pool = await poolPromise;
 
-    /* SAVE USER MESSAGE */
-    await saveMessage(userId,"user",message);
+    await saveMessage(userId, "user", question);
 
-    /* GREETING */
-
-    if(["hi","hello","xin chào"].includes(msg)){
-
-      const reply="Xin chào 👋 Tôi là AI hỗ trợ quản lý nhà trọ.";
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
+    // 1. Kiểm tra Rule-base cho những câu chào hỏi cơ bản (để tiết kiệm API gọi AI)
+    if (["hi", "hello", "xin chào", "chào bạn"].includes(msg)) {
+      const reply = "Xin chào 👋 Tôi là trợ lý AI thông minh của bạn. Tôi có thể giúp bạn phân tích doanh thu, tìm phòng trống hoặc kiểm tra ai đang nợ tiền phòng. Bạn cần xem thông tin gì?";
+      await saveMessage(userId, "assistant", reply);
+      return res.json({ reply });
     }
 
-    /* ===== ROOM COUNT ===== */
-
-    if(msg.includes("phòng") && msg.includes("bao nhiêu")){
-
-      const r = await pool.request()
-      .query("SELECT COUNT(*) total FROM rooms");
-
-      const reply=`Có ${r.recordset[0].total} phòng`;
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
+    // 2. NHƯỜNG PHẦN CÒN LẠI CHO AI XỬ LÝ (Text-to-SQL)
+    // AI sẽ sinh ra câu SQL tương ứng với câu hỏi
+    const generatedQuery = await generateSQL(question, userId);
+    
+    // Bảo mật sơ cấp: Đảm bảo AI chỉ dùng lệnh SELECT, không phá Database
+    if (!generatedQuery.toUpperCase().startsWith("SELECT")) {
+        console.error("Lỗi AI sinh SQL nguy hiểm:", generatedQuery);
+        const reply = "Xin lỗi, tôi chưa hiểu rõ ý bạn hoặc yêu cầu này ngoài khả năng truy xuất của tôi.";
+        return res.json({ reply });
     }
 
-    /* ===== TENANT COUNT ===== */
+    console.log("AI Generated SQL:", generatedQuery); // Log ra để bạn debug xem AI viết SQL đúng không
 
-    if(msg.includes("khách thuê")){
+    // 3. Thực thi câu SQL
+    const result = await pool.request().query(generatedQuery);
+    const dbData = result.recordset;
 
-      const r = await pool.request()
-      .query("SELECT COUNT(*) total FROM users WHERE role='TENANT'");
-
-      const reply=`Có ${r.recordset[0].total} khách thuê`;
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
+    // 4. Nếu không có dữ liệu
+    if (!dbData || dbData.length === 0) {
+      const reply = "Hệ thống không tìm thấy dữ liệu nào phù hợp với yêu cầu của bạn hiện tại.";
+      await saveMessage(userId, "assistant", reply);
+      return res.json({ reply });
     }
 
-    /* ===== UNPAID ROOMS ===== */
+    // 5. Đưa dữ liệu thô (JSON) lại cho AI để nó soạn câu trả lời "đọc được"
+    const aiAnswer = await generateHumanResponse(question, dbData);
 
-    if(msg.includes("chưa thanh toán")){
+    await saveMessage(userId, "assistant", aiAnswer);
+    return res.json({ reply: aiAnswer });
 
-      const r = await pool.request().query(`
-        SELECT rooms.room_name
-        FROM rooms
-        JOIN invoices ON rooms.id = invoices.room_id
-        WHERE invoices.status = 'UNPAID'
-      `);
-
-      const rooms = r.recordset.map(x=>x.room_name).join(", ");
-
-      const reply = rooms
-        ? `Các phòng chưa thanh toán: ${rooms}`
-        : "Không có phòng nào chưa thanh toán";
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
-    }
-
-    /* ===== REVENUE THIS MONTH ===== */
-
-    if(msg.includes("doanh thu")){
-
-      const r = await pool.request().query(`
-        SELECT SUM(total_amount) revenue
-        FROM invoices
-        WHERE month = FORMAT(GETDATE(),'yyyy-MM')
-      `);
-
-      const revenue = r.recordset[0].revenue || 0;
-
-      const reply=`Doanh thu tháng này: ${revenue}`;
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
-    }
-
-    /* ===== EMPTY ROOMS ===== */
-
-    if(msg.includes("phòng trống")){
-
-      const r = await pool.request().query(`
-        SELECT room_name
-        FROM rooms
-        WHERE status = 'EMPTY'
-      `);
-
-      const rooms = r.recordset.map(x=>x.room_name).join(", ");
-
-      const reply = rooms
-        ? `Các phòng trống: ${rooms}`
-        : "Hiện không có phòng trống";
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
-    }
-    if(question.includes("doanh thu tháng")){
-
-      const result = await pool.request().query(`
-        SELECT 
-          MONTH(created_at) AS month,
-          SUM(total_amount) AS revenue
-        FROM invoices
-        GROUP BY MONTH(created_at)
-        ORDER BY month
-      `)
-
-      const labels = result.recordset.map(r=>"T"+r.month)
-      const values = result.recordset.map(r=>r.revenue)
-
-      return res.json({
-        type:"chart",
-        answer:"📊 Doanh thu theo tháng",
-        labels,
-        values
-      })
-    }
-    /* ===== INVOICE COUNT ===== */
-
-    if(msg.includes("hóa đơn")){
-
-      const r = await pool.request()
-      .query("SELECT COUNT(*) total FROM invoices");
-
-      const reply=`Có ${r.recordset[0].total} hóa đơn`;
-
-      await saveMessage(userId,"assistant",reply);
-
-      return res.json({reply});
-
-    }
-
-    /* ===== FALLBACK AI ===== */
-
-    const reply = await normalChat(message);
-
-    await saveMessage(userId,"assistant",reply);
-
-    res.json({reply});
-
-  }
-  catch(err){
-
-    console.error(err);
-
+  } catch (err) {
+    console.error("Lỗi Controller Chat AI:", err);
     res.json({
-      reply:"AI server lỗi"
+      reply: "⚠️ Đã xảy ra lỗi trong quá trình phân tích dữ liệu. Vui lòng thử lại với cách diễn đạt khác!"
     });
-
   }
-
 }

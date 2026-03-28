@@ -27,18 +27,3 @@ export function extractHouse(question, houses){
 
   return null;
 }
-export function extractName(question){
-
-  const patterns = [
-    /(.+)\s+ở phòng/i,
-    /tên\s+(.+)/i,
-    /người\s+(.+)/i
-  ]
-
-  for(const regex of patterns){
-    const match = question.match(regex)
-    if(match) return match[1].trim()
-  }
-
-  return null
-}

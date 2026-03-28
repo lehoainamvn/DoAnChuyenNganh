@@ -1,64 +1,85 @@
-import express from "express"
-import { poolPromise } from "../config/db.js"
-import { predictRevenue } from "../services/ml.service.js"
-import { generateInsight } from "../services/aiInsight.service.js"
+import express from "express";
+import { poolPromise } from "../config/db.js";
+import { spawn } from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const router = express.Router()
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-router.get("/predict-revenue", async (req,res)=>{
+const router = express.Router();
 
-  try{
+router.get("/", async (req, res) => {
+  try {
+    const houseId = req.query.house;
+    const months = parseInt(req.query.months) || 3;
+    const simOccupancy = req.query.simOccupancy || 90; // Lấy từ React gửi lên
 
-    const months = Number(req.query.months) || 3
+    if (!houseId) {
+      return res.status(400).json({ error: "Vui lòng cung cấp ID nhà trọ" });
+    }
 
-    const pool = await poolPromise
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input("houseId", houseId)
+      .query(`
+        SELECT 
+          i.month,
+          SUM(i.total_amount) as revenue
+        FROM invoices i
+        JOIN rooms r ON i.room_id = r.id
+        WHERE r.house_id = @houseId
+        GROUP BY i.month
+        ORDER BY i.month ASC
+      `);
 
-    const result = await pool.request().query(`
-      SELECT
-      FORMAT(created_at,'yyyy-MM') month,
-      SUM(total_amount) revenue
-      FROM invoices
-      GROUP BY FORMAT(created_at,'yyyy-MM')
-      ORDER BY month
-    `)
+    const dbData = result.recordset;
 
-    const history = result.recordset
+    // Gói dữ liệu đầy đủ gửi sang Python
+    const payload = JSON.stringify({
+      data: dbData,
+      months: months,
+      simOccupancy: simOccupancy 
+    });
 
-    const pred = await predictRevenue(history,months)
+    const scriptPath = path.join(__dirname, "../ml/predict_revenue.py"); 
+    
+    // CHỈ GỌI SPAWN 1 LẦN DUY NHẤT
+    const pythonProcess = spawn("py", [scriptPath]);
 
-    const lastDate = new Date(history[history.length-1].month+"-01")
+    let stdoutData = "";
+    let stderrData = "";
 
-    const prediction = pred.map((v,i)=>{
+    pythonProcess.stdout.on("data", (chunk) => {
+      stdoutData += chunk.toString();
+    });
 
-      const d = new Date(lastDate)
+    pythonProcess.stderr.on("data", (chunk) => {
+      stderrData += chunk.toString();
+    });
 
-      d.setMonth(d.getMonth()+i+1)
-
-      return{
-        month:d.toISOString().slice(0,7),
-        revenue:Math.round(v)
+    pythonProcess.on("close", (code) => {
+      if (code !== 0) {
+        console.error("Python Crash Error:", stderrData);
+        return res.status(500).json({ error: "Lỗi chạy mô hình AI" });
       }
+      try {
+        const parsedData = JSON.parse(stdoutData);
+        return res.json(parsedData); 
+      } catch (err) {
+        console.error("Lỗi parse JSON:", stdoutData);
+        return res.status(500).json({ error: "Lỗi định dạng dữ liệu AI" });
+      }
+    });
 
-    })
+    // Gửi dữ liệu vào Python và kết thúc luồng ghi
+    pythonProcess.stdin.write(payload);
+    pythonProcess.stdin.end();
 
-    const insights = generateInsight(history,prediction)
-
-    res.json({
-      history,
-      prediction,
-      insights
-    })
-
-  }catch(err){
-
-    console.error(err)
-
-    res.status(500).json({
-      error:"predict error"
-    })
-
+  } catch (err) {
+    console.error("Dự đoán doanh thu lỗi:", err);
+    res.status(500).json({ error: "Lỗi máy chủ" });
   }
+});
 
-})
-
-export default router
+export default router;

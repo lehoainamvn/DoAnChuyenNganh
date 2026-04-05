@@ -189,7 +189,7 @@ export default function DashboardLayout() {
     { label: "Điện nước", path: "/meters", icon: Zap },
     { label: "Thống kê", path: "/revenue", icon: BarChart3 },
     { label: "Tin nhắn", path: "/messages", icon: MessageSquare },
-    { label: "Nội quy", path: "/rules", icon: Shield },
+
     { label: "AI Prediction", path: "/prediction", icon: Brain }
   ];
 

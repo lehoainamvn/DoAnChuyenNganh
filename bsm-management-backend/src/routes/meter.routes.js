@@ -2,7 +2,8 @@ import express from "express";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import {
   inputMeter,
-  getMeterHistory
+  getMeterHistory,
+  getMeterReadingByRoomAndMonth
 } from "../controllers/meter.controller.js";
 
 const router = express.Router();
@@ -15,6 +16,12 @@ router.post(
   "/rooms/:id/meter-readings",
   verifyToken,
   inputMeter
+);
+
+router.get(
+  "/rooms/:id/meter-readings",
+  verifyToken,
+  getMeterReadingByRoomAndMonth
 );
 
 /**

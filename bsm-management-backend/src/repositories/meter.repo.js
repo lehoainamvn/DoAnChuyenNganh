@@ -18,21 +18,47 @@ export async function createMeterReading(roomId, data) {
       (@room_id, @month, @electric_old, @electric_new, @water_old, @water_new)
     `);
 }
-export async function getMeterHistoryRepo(ownerId, year, month, roomId) {
+
+export async function getMeterReadingByRoomAndMonth(roomId, month) {
   const pool = await poolPromise;
 
-  let roomCondition = "";
-  if (roomId) {
-    roomCondition = "AND r.id = @room_id";
+  const result = await pool.request()
+    .input("room_id", sql.Int, roomId)
+    .input("month", sql.NVarChar(7), month)
+    .query(`
+      SELECT electric_old, electric_new, water_old, water_new
+      FROM meter_readings
+      WHERE room_id = @room_id
+        AND month = @month
+    `);
+
+  return result.recordset[0] || null;
+}
+
+export async function getMeterHistoryRepo(ownerId, year, month, houseId) {
+  const pool = await poolPromise;
+
+  let monthCondition = "";
+  let houseCondition = "";
+  
+  if (month) {
+    monthCondition = "AND MONTH(m.created_at) = @month";
+  }
+  
+  if (houseId) {
+    houseCondition = "AND r.house_id = @house_id";
   }
 
   const request = pool.request()
     .input("owner_id", sql.Int, ownerId)
-    .input("year", sql.Int, year)
-    .input("month", sql.Int, month);
+    .input("year", sql.Int, year);
 
-  if (roomId) {
-    request.input("room_id", sql.Int, roomId);
+  if (month) {
+    request.input("month", sql.Int, month);
+  }
+  
+  if (houseId) {
+    request.input("house_id", sql.Int, houseId);
   }
 
   const result = await request.query(`
@@ -58,8 +84,8 @@ export async function getMeterHistoryRepo(ownerId, year, month, roomId) {
     JOIN rooms r ON m.room_id = r.id
     WHERE r.owner_id = @owner_id
       AND YEAR(m.created_at) = @year
-      AND MONTH(m.created_at) = @month
-      ${roomCondition}
+      ${monthCondition}
+      ${houseCondition}
     ORDER BY r.room_name, m.created_at DESC
   `);
 

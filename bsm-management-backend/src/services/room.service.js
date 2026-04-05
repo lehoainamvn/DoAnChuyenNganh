@@ -6,6 +6,7 @@ import {
   getCurrentTenantByRoom,
   deleteRoom
 } from "../repositories/room.repo.js";
+import { getSettingsByOwner } from "../repositories/settings.repo.js";
 import { createNotification } from "./notification.service.js";
 import sql, { poolPromise } from "../config/db.js";
 
@@ -88,8 +89,23 @@ export async function createRoomService(ownerId, data) {
     throw new Error("Tên phòng đã tồn tại trong nhà này");
   }
 
-  // 5. Nếu mọi thứ hợp lệ, tiến hành tạo phòng
-  return createRoom(ownerId, data);
+  // 5. Nếu mọi thứ hợp lệ, lấy giá mặc định nếu không có giá cụ thể
+  const settings = await getSettingsByOwner(ownerId);
+
+  const payload = {
+    ...data,
+    room_price: data.room_price === undefined || data.room_price === null || data.room_price === ""
+      ? settings?.default_room_price ?? 0
+      : data.room_price,
+    electric_price: data.electric_price === undefined || data.electric_price === null || data.electric_price === ""
+      ? settings?.default_electric_price ?? 0
+      : data.electric_price,
+    water_price: data.water_price === undefined || data.water_price === null || data.water_price === ""
+      ? settings?.default_water_price ?? 0
+      : data.water_price,
+  };
+
+  return createRoom(ownerId, payload);
 }
 /* =========================
    DANH SÁCH PHÒNG

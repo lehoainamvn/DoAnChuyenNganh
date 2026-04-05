@@ -1,13 +1,17 @@
 import sql from "mssql";
 import { poolPromise } from "../config/db.js";
 
-import { createMeterReading } from "../repositories/meter.repo.js";
+import { createMeterReading, getMeterReadingByRoomAndMonth } from "../repositories/meter.repo.js";
 import { createInvoiceRepo } from "../repositories/invoice.repo.js";
 import { getMeterHistoryRepo } from "../repositories/meter.repo.js";
 import { createNotification } from "./notification.service.js"; // Đảm bảo file này nằm cùng thư mục services
 
 export function getMeterHistoryService(ownerId, year, month, roomId) {
   return getMeterHistoryRepo(ownerId, year, month, roomId);
+}
+
+export function getMeterReadingByRoomAndMonthService(roomId, month) {
+  return getMeterReadingByRoomAndMonth(roomId, month);
 }
 
 /*

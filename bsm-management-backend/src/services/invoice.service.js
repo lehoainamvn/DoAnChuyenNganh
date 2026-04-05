@@ -2,13 +2,17 @@ import {
   createInvoiceRepo,
   getInvoicesByMonth,
   getInvoiceById,
+  getInvoiceByRoomAndMonth,
+  getMeterReadingByRoomAndMonth,
+  updateInvoiceById,
+  updateMeterReading,
   markInvoicePaid,
   getInvoicesByTenantId,
   getLatestInvoiceByTenantId,
   getInvoiceDetailByTenantId 
 } from "../repositories/invoice.repo.js";
 import { createNotification } from "./notification.service.js"; // 👉 Import hàm tạo thông báo
-import { poolPromise } from "../config/db.js";
+import sql, { poolPromise } from "../config/db.js";
 /* =========================
    CREATE
 ========================= */
@@ -16,10 +20,27 @@ export async function createInvoiceService(data) {
   if (!data.room_id || !data.month) {
     throw new Error("Thiếu dữ liệu hóa đơn");
   }
-  
 
   await createInvoiceRepo(data);
 }
+
+export async function getInvoiceByRoomAndMonthService(roomId, month) {
+  return getInvoiceByRoomAndMonth(roomId, month);
+}
+
+export async function getMeterReadingByRoomAndMonthService(roomId, month) {
+  return getMeterReadingByRoomAndMonth(roomId, month);
+}
+
+export async function updateInvoiceService(invoiceId, data) {
+  if (!invoiceId || !data.room_id || !data.month) {
+    throw new Error("Thiếu dữ liệu cập nhật hóa đơn");
+  }
+
+  await updateInvoiceById(invoiceId, data);
+  await updateMeterReading(data.room_id, data.month, data);
+}
+
 export function getTenantInvoiceDetailService(tenantId, invoiceId) {
   return getInvoiceDetailByTenantId(tenantId, invoiceId);
 }

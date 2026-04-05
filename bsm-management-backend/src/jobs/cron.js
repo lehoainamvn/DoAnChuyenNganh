@@ -1,9 +1,9 @@
 import cron from "node-cron";
 import sql from "mssql";
-// 👉 NHỚ TRỎ ĐÚNG ĐƯỜNG DẪN đến file kết nối của bạn (Ví dụ: ../config/db.js)
+
 import { poolPromise } from "../config/db.js"; 
 
-cron.schedule("* * * * *", async () => {
+cron.schedule("8 0 * * *", async () => {
   try {
     console.log("[Cron Job] Đang kiểm tra ngày nhắc nhở...");
 

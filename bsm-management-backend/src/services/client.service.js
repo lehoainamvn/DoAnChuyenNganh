@@ -1,5 +1,6 @@
 import {
   getAllClients,
+  getAllClientsWithStatus,
   createClient,
   updateClient,
   deleteClient
@@ -8,6 +9,10 @@ import bcrypt from "bcryptjs";
 
 export async function getAllClientsService() {
   return await getAllClients();
+}
+
+export async function getAllClientsWithStatusService(ownerId) {
+  return await getAllClientsWithStatus(ownerId);
 }
 
 export async function createClientService(data) {

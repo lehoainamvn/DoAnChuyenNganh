@@ -21,6 +21,21 @@ export async function createInvoiceRepo(data) {
 
   const tenantId = tenantResult.recordset[0].tenant_id;
 
+  // 1.5. Kiểm tra xem hóa đơn tháng này đã tồn tại chưa
+  const existingInvoice = await pool.request()
+    .input("room_id", sql.Int, data.room_id)
+    .input("month", sql.NVarChar(7), data.month)
+    .query(`
+      SELECT id
+      FROM invoices
+      WHERE room_id = @room_id
+        AND month = @month
+    `);
+
+  if (existingInvoice.recordset.length > 0) {
+    throw new Error("Hóa đơn tháng này đã tồn tại. Vui lòng chỉnh sửa hóa đơn hiện tại.");
+  }
+
   // 2. Lưu chỉ số điện nước
   await pool.request()
     .input("room_id", sql.Int, data.room_id)
@@ -93,20 +108,37 @@ export async function createInvoiceRepo(data) {
 export async function getInvoicesByMonth(ownerId, month, houseId) {
   const pool = await poolPromise;
 
+  let monthCondition = "";
   let houseCondition = "";
+  
+  if (month && month.trim()) {
+    monthCondition = "AND i.month = @month";
+  }
+  
   if (houseId) {
     houseCondition = "AND r.house_id = @house_id";
   }
 
-  const request = pool.request()
-    .input("owner_id", sql.Int, ownerId)
-    .input("month", sql.NVarChar(7), month);
+  console.log("🔍 getInvoicesByMonth - Building query:", {
+    ownerId,
+    month: month || "null",
+    houseId: houseId || "null",
+    monthCondition: monthCondition || "none",
+    houseCondition: houseCondition || "none"
+  });
 
+  const request = pool.request()
+    .input("owner_id", sql.Int, ownerId);
+
+  if (month && month.trim()) {
+    request.input("month", sql.NVarChar(7), month);
+  }
+  
   if (houseId) {
     request.input("house_id", sql.Int, houseId);
   }
 
-  const result = await request.query(`
+  const query = `
     SELECT 
       i.id,
       i.month,
@@ -120,10 +152,16 @@ export async function getInvoicesByMonth(ownerId, month, houseId) {
     JOIN rooms r ON i.room_id = r.id
     JOIN users u ON i.tenant_id = u.id
     WHERE r.owner_id = @owner_id
-      AND i.month = @month
+      ${monthCondition}
       ${houseCondition}
     ORDER BY i.created_at DESC
-  `);
+  `;
+
+  console.log("📝 SQL Query:", query);
+
+  const result = await request.query(query);
+
+  console.log("✅ Query result rowCount:", result.recordset.length);
 
   return result.recordset;
 }
@@ -148,6 +186,88 @@ export async function getInvoiceById(ownerId, invoiceId) {
     `);
 
   return result.recordset[0];
+}
+
+export async function getInvoiceByRoomAndMonth(roomId, month) {
+  const pool = await poolPromise;
+
+  const result = await pool.request()
+    .input("room_id", sql.Int, roomId)
+    .input("month", sql.NVarChar(7), month)
+    .query(`
+      SELECT 
+        i.*,
+        r.room_name,
+        u.name AS tenant_name,
+        u.phone AS tenant_phone
+      FROM invoices i
+      JOIN rooms r ON i.room_id = r.id
+      JOIN users u ON i.tenant_id = u.id
+      WHERE i.room_id = @room_id
+        AND i.month = @month
+    `);
+
+  return result.recordset[0] || null;
+}
+
+export async function getMeterReadingByRoomAndMonth(roomId, month) {
+  const pool = await poolPromise;
+
+  const result = await pool.request()
+    .input("room_id", sql.Int, roomId)
+    .input("month", sql.NVarChar(7), month)
+    .query(`
+      SELECT electric_old, electric_new, water_old, water_new
+      FROM meter_readings
+      WHERE room_id = @room_id
+        AND month = @month
+    `);
+
+  return result.recordset[0] || null;
+}
+
+export async function updateInvoiceById(invoiceId, data) {
+  const pool = await poolPromise;
+
+  await pool.request()
+    .input("invoice_id", sql.Int, invoiceId)
+    .input("room_price", sql.Decimal(12,2), data.room_price)
+    .input("electric_used", sql.Int, data.electric_used)
+    .input("water_used", sql.Int, data.water_used)
+    .input("electric_cost", sql.Decimal(12,2), data.electric_cost)
+    .input("water_cost", sql.Decimal(12,2), data.water_cost)
+    .input("total_amount", sql.Decimal(12,2), data.total_amount)
+    .query(`
+      UPDATE invoices
+      SET room_price = @room_price,
+          electric_used = @electric_used,
+          water_used = @water_used,
+          electric_cost = @electric_cost,
+          water_cost = @water_cost,
+          total_amount = @total_amount
+      WHERE id = @invoice_id
+    `);
+}
+
+export async function updateMeterReading(roomId, month, data) {
+  const pool = await poolPromise;
+
+  await pool.request()
+    .input("room_id", sql.Int, roomId)
+    .input("month", sql.NVarChar(7), month)
+    .input("electric_old", sql.Int, data.electric_old)
+    .input("electric_new", sql.Int, data.electric_new)
+    .input("water_old", sql.Int, data.water_old)
+    .input("water_new", sql.Int, data.water_new)
+    .query(`
+      UPDATE meter_readings
+      SET electric_old = @electric_old,
+          electric_new = @electric_new,
+          water_old = @water_old,
+          water_new = @water_new
+      WHERE room_id = @room_id
+        AND month = @month
+    `);
 }
 
 export async function markInvoicePaid(ownerId, invoiceId) {

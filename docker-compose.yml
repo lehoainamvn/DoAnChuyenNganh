@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # 2. Backend: Node.js
+  backend:
+    build: ./bsm-management-backend
+    container_name: bsm_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_SERVER=host.docker.internal
+      - DB_USER=bsm_user          
+      - DB_PASSWORD=123456         
+      - DB_NAME=BSM_Management
+      - JWT_SECRET=super_secret_key_123456
+
+# 3. Frontend: React + Vite
+  frontend:
+    build: ./bsm-frontend
+    container_name: bsm_frontend
+    ports:
+      - "5173:5173"
+    stdin_open: true # Thêm dòng này
+    tty: true        # Thêm dòng này
+    volumes:
+      - ./bsm-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend

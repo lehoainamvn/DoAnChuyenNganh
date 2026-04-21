@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
   try {
     const houseId = req.query.house;
     const months = parseInt(req.query.months) || 3;
-    const simOccupancy = req.query.simOccupancy || 90; // Lấy từ React gửi lên
+    const simOccupancy = req.query.simOccupancy || 90;
 
     if (!houseId) {
       return res.status(400).json({ error: "Vui lòng cung cấp ID nhà trọ" });
@@ -35,17 +35,20 @@ router.get("/", async (req, res) => {
 
     const dbData = result.recordset;
 
-    // Gói dữ liệu đầy đủ gửi sang Python
     const payload = JSON.stringify({
       data: dbData,
-      months: months,
-      simOccupancy: simOccupancy 
+      months,
+      simOccupancy
     });
 
-    const scriptPath = path.join(__dirname, "../ml/predict_revenue.py"); 
-    
-    // CHỈ GỌI SPAWN 1 LẦN DUY NHẤT
-    const pythonProcess = spawn("py", [scriptPath]);
+    const scriptPath = path.join(__dirname, "../ml/predict_revenue.py");
+
+    // ✅ FIX QUAN TRỌNG: Linux dùng python3
+    const pythonCmd = process.platform === "win32" ? "py" : "python3";
+
+    const pythonProcess = spawn(pythonCmd, [scriptPath], {
+      stdio: ["pipe", "pipe", "pipe"] // QUAN TRỌNG để tránh lỗi hidden
+    });
 
     let stdoutData = "";
     let stderrData = "";
@@ -58,21 +61,36 @@ router.get("/", async (req, res) => {
       stderrData += chunk.toString();
     });
 
+    // ✅ tránh crash backend
+    pythonProcess.on("error", (err) => {
+      console.error("Spawn error:", err);
+      return res.status(500).json({
+        error: "Không chạy được Python",
+        detail: err.message
+      });
+    });
+
     pythonProcess.on("close", (code) => {
       if (code !== 0) {
-        console.error("Python Crash Error:", stderrData);
-        return res.status(500).json({ error: "Lỗi chạy mô hình AI" });
+        console.error("Python error:", stderrData);
+        return res.status(500).json({
+          error: "Lỗi chạy mô hình AI",
+          detail: stderrData
+        });
       }
+
       try {
-        const parsedData = JSON.parse(stdoutData);
-        return res.json(parsedData); 
+        const parsed = JSON.parse(stdoutData);
+        return res.json(parsed);
       } catch (err) {
-        console.error("Lỗi parse JSON:", stdoutData);
-        return res.status(500).json({ error: "Lỗi định dạng dữ liệu AI" });
+        console.error("Parse JSON error:", stdoutData);
+        return res.status(500).json({
+          error: "Python trả về dữ liệu không hợp lệ"
+        });
       }
     });
 
-    // Gửi dữ liệu vào Python và kết thúc luồng ghi
+    // gửi data sang Python
     pythonProcess.stdin.write(payload);
     pythonProcess.stdin.end();
 

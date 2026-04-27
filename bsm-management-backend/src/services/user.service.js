@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import {
   getUserPasswordById,
   updateUserPassword
-} from "../repositories/user.repo.js";
+} from "../repositories/userRepository.js";
 
 export async function changePasswordService(
   userId,

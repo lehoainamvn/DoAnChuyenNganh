@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { login, googleLoginApi } from "../../api/auth.api";
+import { login, googleLoginApi } from "../../api/authApi";
 import toast from "react-hot-toast";
 import { Phone, Lock } from "lucide-react";
 import AuthLayout from "../../layouts/AuthLayout"; 
 import Captcha from "../../components/common/Captcha";
+import RoleSelectionModal from "../../components/modals/RoleSelectionModal";
 import { GoogleLogin } from "@react-oauth/google";
 
 export default function Login() {
@@ -15,6 +16,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isCaptchaValid, setIsCaptchaValid] = useState(false); // Lưu trạng thái đúng/sai của captcha
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [googleCredential, setGoogleCredential] = useState(null);
 
   /* ================= AUTO REDIRECT ================= */
   useEffect(() => {
@@ -67,8 +70,18 @@ export default function Login() {
   /* ================= GOOGLE LOGIN HANDLER ================= */
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
+      // Store credential and show role selection modal
+      setGoogleCredential(credentialResponse.credential);
+      setShowRoleModal(true);
+    } catch (err) {
+      toast.error(err?.message || "Đăng nhập Google thất bại");
+    }
+  };
+
+  const handleRoleSelect = async (selectedRole) => {
+    try {
       setLoading(true);
-      const data = await googleLoginApi(credentialResponse.credential);
+      const data = await googleLoginApi(googleCredential, selectedRole);
       
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -82,6 +95,7 @@ export default function Login() {
       
     } catch (err) {
       toast.error(err?.message || "Đăng nhập Google thất bại");
+      setShowRoleModal(false);
     } finally {
       setLoading(false);
     }
@@ -173,6 +187,13 @@ export default function Login() {
         <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-bold">Tạo tài khoản mới</Link>
         <Link to="/forgot" className="text-slate-500 hover:text-indigo-600 transition-colors">Quên mật khẩu?</Link>
       </div>
+
+      {/* ROLE SELECTION MODAL */}
+      <RoleSelectionModal 
+        isOpen={showRoleModal} 
+        onSelectRole={handleRoleSelect}
+        loading={loading}
+      />
     </AuthLayout>
   );
 }

@@ -2,7 +2,7 @@ import {
   getMessagesByRoom,
   sendMessageRepo,
   getOwnerRooms
-} from "../repositories/message.repo.js";
+} from "../repositories/messageRepository.js";
 
 import { poolPromise } from "../config/db.js";
 export function getMessagesService(roomId) {

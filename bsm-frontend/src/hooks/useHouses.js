@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
-import { getHouses, deleteHouse as deleteHouseApi } from "../api/house.api";
+import { getHouses, deleteHouse as deleteHouseApi } from "../api/houseApi";
 
 
 export function useHouses() {

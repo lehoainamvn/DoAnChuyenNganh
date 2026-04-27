@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getRoomById, updateRoom } from "../../api/room.api";
-import { findTenantByEmail, assignTenantToRoom, removeTenantFromRoom } from "../../api/tenant.api";
+import { getRoomById, updateRoom } from "../../api/roomApi";
+import { findTenantByEmail, assignTenantToRoom, removeTenantFromRoom } from "../../api/tenantApi";
 
 export default function RoomDetail() {
   const { id } = useParams();

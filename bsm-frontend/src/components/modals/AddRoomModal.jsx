@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createRoom } from "../../api/room.api";
+import { createRoom } from "../../api/roomApi";
 
 export default function AddRoomModal({ houseId, onClose, onSuccess }) {
   const [form, setForm] = useState({

@@ -4,7 +4,7 @@ import {
   createClient,
   updateClient,
   deleteClient
-} from "../repositories/client.repo.js";
+} from "../repositories/clientRepository.js";
 import bcrypt from "bcryptjs";
 
 export async function getAllClientsService() {

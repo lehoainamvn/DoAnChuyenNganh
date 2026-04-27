@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
-import { getSettings, updateSettings } from "../../api/settings.api";
+import { getSettings, updateSettings } from "../../api/settingsApi";
 import { 
   Save, 
   Zap, 

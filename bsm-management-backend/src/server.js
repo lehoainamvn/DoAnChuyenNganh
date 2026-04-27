@@ -4,28 +4,29 @@ import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 
-import authRoutes from "./routes/auth.route.js";
-import houseRoutes from "./routes/house.route.js";
-import tenantRoutes from "./routes/tenant.routes.js";
-import meterRoutes from "./routes/meter.routes.js";
-import clientRoutes from "./routes/client.routes.js";
-import roomRoutes from "./routes/room.routes.js";
-import invoiceRoutes from "./routes/invoice.routes.js";
-import revenueRoutes from "./routes/revenue.routes.js";
-import profileRoutes from "./routes/profile.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import messageRoutes from "./routes/message.routes.js";
-import aiRoutes from "./routes/ai.route.js";
-import aiTenantRoutes from "./routes/aiTenant.route.js"
-import predictRoute from "./routes/predict.route.js";
-import paymentRoutes from "./routes/payment.route.js";
-import uploadRoutes from "./routes/upload.route.js";
-import settingsRoutes from "./routes/settings.route.js";
-import notificationRoutes from "./routes/notification.routes.js";
+import authRoutes from "./routes/authRoutes.js";
+import houseRoutes from "./routes/houseRoutes.js";
+import tenantRoutes from "./routes/tenantRoutes.js";
+import meterRoutes from "./routes/meterRoutes.js";
+import clientRoutes from "./routes/clientRoutes.js";
+import roomRoutes from "./routes/roomRoutes.js";
+import invoiceRoutes from "./routes/invoiceRoutes.js";
+import revenueRoutes from "./routes/revenueRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
+import aiTenantRoutes from "./routes/aiTenantRoutes.js"
+import predictRoute from "./routes/predictRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
+import settingsRoutes from "./routes/settingsRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 import "./jobs/cron.js";
 /* ✅ IMPORT ĐÚNG */
 import { verifyMail } from "./config/mail.js";
 import { poolPromise } from "./config/db.js";
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 dotenv.config();
 
 /* ✅ VERIFY SMTP */
@@ -127,6 +128,9 @@ app.use("/api", meterRoutes); // covers /api/meters and /api/rooms/:id/meter-rea
 app.use("/api", invoiceRoutes); // covers /api/invoices
 app.use("/api", revenueRoutes); // covers /api/revenue
 app.use("/api", uploadRoutes); // covers /api/upload
+
+// ===== ERROR HANDLING =====
+app.use(errorMiddleware);
 
 // ===== START SERVER =====
 /* START SERVER */

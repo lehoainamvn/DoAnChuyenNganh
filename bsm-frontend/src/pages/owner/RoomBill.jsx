@@ -2,8 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Zap, Droplet, Home, Wrench, Save, ArrowLeft, Calculator } from "lucide-react";
 import toast from "react-hot-toast";
-import { getInvoiceByRoomAndMonth, updateInvoice, createInvoice } from "../../api/invoice.api";
-import { getMeterReadingByRoomAndMonth } from "../../api/meter.api";
+import { getInvoiceByRoomAndMonth, updateInvoice, createInvoice } from "../../api/invoiceApi";
+import { getMeterReadingByRoomAndMonth } from "../../api/meterApi";
 
 export default function RoomBill() {
   const { state } = useLocation();

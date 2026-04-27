@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getTenantDashboard } from "../../api/tenant.api";
+import { getTenantDashboard } from "../../api/tenantApi";
 import { 
   CreditCard, 
   Zap, 

@@ -5,7 +5,7 @@ import {
   updateHouseRepo,
   deleteHouseRepo,
   
-} from "../repositories/house.repo.js";
+} from "../repositories/houseRepository.js";
 
 export async function getMyHousesService(ownerId) {
   return await getMyHousesRepo(ownerId);

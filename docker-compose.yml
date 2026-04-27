@@ -9,9 +9,6 @@ services:
       - ./bsm-management-backend/.env
     environment:
       - DB_SERVER=host.docker.internal # Kết nối tới SQL Server trên máy host
-    # Nếu bạn dùng database docker thì bỏ comment dòng dưới
-    # depends_on:
-    #   - database
 
   # 3. Frontend: React + Vite
   frontend:
@@ -26,13 +23,3 @@ services:
       - /app/node_modules
     depends_on:
       - backend
-
-  # SQL Server (Optional)
-  # database:
-  #   image: mcr.microsoft.com/mssql/server:2022-latest
-  #   container_name: bsm_sql_server
-  #   environment:
-  #     - ACCEPT_EULA=Y
-  #     - MSSQL_SA_PASSWORD=YourStrong@Password
-  #   ports:
-  #     - "1434:1433"

@@ -17,7 +17,7 @@ import { useHouses } from "../../hooks/useHouses";
 import { useSettings } from "../../hooks/useSettings";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
-import { getRoomsByHouse, createRoom, deleteRoom } from "../../api/room.api";
+import { getRoomsByHouse, createRoom, deleteRoom } from "../../api/roomApi";
 import AddButton from "../../components/common/AddButton";
 
 const API_HOUSES = "http://localhost:5000/api/houses";

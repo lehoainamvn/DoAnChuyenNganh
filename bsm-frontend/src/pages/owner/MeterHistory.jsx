@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { getMeterHistory } from "../../api/meter.api";
-import { getRoomsByHouse } from "../../api/room.api";
+import { getMeterHistory } from "../../api/meterApi";
+import { getRoomsByHouse } from "../../api/roomApi";
 import { Activity, Calendar, Home, BedDouble, Zap, Droplet, Search, Moon, ChevronDown } from "lucide-react";
 
 import CustomDropdown from "../../components/common/CustomDropdown";

@@ -11,8 +11,8 @@ import {
   CalendarDays, ArrowUpRight, ArrowDownRight, Minus
 } from "lucide-react";
 
-import { getHouses } from "../../api/house.api";
-import { predictRevenue } from "../../api/predict.api";
+import { getHouses } from "../../api/houseApi";
+import { predictRevenue } from "../../api/predictApi";
 
 function fmt(v) {
   return new Intl.NumberFormat("vi-VN").format(v) + "đ";

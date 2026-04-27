@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { getTenants, createTenant, deleteTenant, updateTenant } from "../../api/client.api";
+import { getTenants, createTenant, deleteTenant, updateTenant } from "../../api/clientApi";
 import toast from "react-hot-toast";
 import { Edit, Trash2, User, Mail, Phone, Lock, Search, X, Users, Clock, ChevronDown } from "lucide-react";
 import AddButton from "../../components/common/AddButton"; 

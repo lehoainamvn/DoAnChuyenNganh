@@ -13,7 +13,39 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <BrowserRouter>
         <App />
-        <Toaster position="top-right" />
+        <Toaster 
+          position="top-right"
+          toastOptions={{
+            // Global options
+            duration: 4000,
+            style: {
+              background: '#fff',
+              color: '#363636',
+              padding: '16px',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            },
+            // Success toast
+            success: {
+              duration: 3000,
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#fff',
+              },
+            },
+            // Error toast
+            error: {
+              duration: 4000,
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff',
+              },
+            },
+          }}
+          containerStyle={{
+            top: 80,
+          }}
+        />
       </BrowserRouter>
     </GoogleOAuthProvider>
   </React.StrictMode>

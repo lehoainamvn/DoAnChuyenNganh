@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Brain
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import AIChatBox from "../components/chat/AIChatBox";
 import Sidebar from "../components/layout/Sidebar";
@@ -60,8 +61,32 @@ export default function DashboardLayout() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+    try {
+      // Xóa token và user info từ localStorage
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('profile'); // Backup key nếu có
+      
+      // Hiển thị thông báo thành công
+      toast.success('Đăng xuất thành công');
+      
+      // Chuyển hướng về trang login
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      
+      // Vẫn đăng xuất dù có lỗi (fail-safe)
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      localStorage.removeItem('profile');
+      
+      // Fallback navigation
+      try {
+        navigate('/login');
+      } catch (navError) {
+        window.location.href = '/login';
+      }
+    }
   };
 
   const handleNotificationClick = (notification) => {

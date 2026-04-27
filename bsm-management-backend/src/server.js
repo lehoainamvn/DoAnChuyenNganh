@@ -27,6 +27,7 @@ import "./jobs/cron.js";
 import { verifyMail } from "./config/mail.js";
 import { poolPromise } from "./config/db.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
+import { setSocketIO } from "./services/notification.service.js";
 dotenv.config();
 
 /* ✅ VERIFY SMTP */
@@ -41,9 +42,18 @@ const io = new Server(server, {
   }
 });
 
+// Set io instance for notification service
+setSocketIO(io);
+
 io.on("connection", (socket) => {
 
   console.log("✅ User connected:", socket.id);
+
+  // Auto join user's personal room for notifications
+  socket.on("join_user_room", (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`👤 User ${userId} joined personal room: user_${userId}`);
+  });
 
   socket.on("join_room", (roomId) => {
     console.log(`👉 ${socket.id} join room ${roomId}`);

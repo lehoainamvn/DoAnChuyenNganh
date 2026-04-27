@@ -1,9 +1,39 @@
-﻿/* =========================
+﻿USE master;
+GO
+
+/* =========================
+   TẠO LOGIN SQL SERVER
+========================= */
+IF NOT EXISTS (SELECT * FROM sys.sql_logins WHERE name = 'bsm_user')
+BEGIN
+    CREATE LOGIN bsm_user
+    WITH PASSWORD = '123456',
+    CHECK_POLICY = OFF;
+END
+GO
+
+/* =========================
    TẠO DATABASE
 ========================= */
-CREATE DATABASE BSM_Management;
+IF DB_ID('BSM_Management') IS NULL
+BEGIN
+    CREATE DATABASE BSM_Management;
+END
 GO
+
 USE BSM_Management;
+GO
+
+/* =========================
+   TẠO USER TRONG DATABASE
+========================= */
+IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'bsm_user')
+BEGIN
+    CREATE USER bsm_user FOR LOGIN bsm_user;
+END
+GO
+
+ALTER ROLE db_owner ADD MEMBER bsm_user;
 GO
 
 /* =========================
@@ -216,8 +246,9 @@ CREATE TABLE settings (
     billing_day INT DEFAULT 5,
     default_electric_price INT DEFAULT 0,
     default_water_price INT DEFAULT 0,
-	default_room_price DECIMAL(12,2) DEFAULT 0;
+    default_room_price DECIMAL(12,2) DEFAULT 0,
     created_at DATETIME DEFAULT GETDATE(),
 
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
+GO

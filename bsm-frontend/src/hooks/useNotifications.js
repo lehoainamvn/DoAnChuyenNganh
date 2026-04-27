@@ -31,7 +31,8 @@ export function useNotifications(userId) {
   useEffect(() => {
     fetchNotifications();
     if (userId) {
-      socket.emit("join_room", `user_${userId}`);
+      // Join user's personal room for notifications
+      socket.emit("join_user_room", userId);
       
       socket.on("new_notification", (newNotify) => {
         setNotifications(prev => [newNotify, ...prev]);

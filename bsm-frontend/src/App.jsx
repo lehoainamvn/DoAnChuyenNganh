@@ -46,6 +46,7 @@ export default function App() {
 
       {/* AUTH */}
       <Route path="/" element={<Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot" element={<ForgotPassword />} />
 

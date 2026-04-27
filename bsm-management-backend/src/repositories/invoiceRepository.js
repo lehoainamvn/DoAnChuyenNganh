@@ -229,6 +229,21 @@ export async function getMeterReadingByRoomAndMonth(roomId, month) {
 export async function updateInvoiceById(invoiceId, data) {
   const pool = await poolPromise;
 
+  // Get tenant_id and month before update
+  const invoiceInfo = await pool.request()
+    .input("invoice_id", sql.Int, invoiceId)
+    .query(`
+      SELECT tenant_id, month, total_amount
+      FROM invoices
+      WHERE id = @invoice_id
+    `);
+
+  if (invoiceInfo.recordset.length === 0) {
+    throw new Error("Hóa đơn không tồn tại");
+  }
+
+  const { tenant_id, month } = invoiceInfo.recordset[0];
+
   await pool.request()
     .input("invoice_id", sql.Int, invoiceId)
     .input("room_price", sql.Decimal(12,2), data.room_price)
@@ -247,6 +262,24 @@ export async function updateInvoiceById(invoiceId, data) {
           total_amount = @total_amount
       WHERE id = @invoice_id
     `);
+
+  // 🔥 TỰ ĐỘNG TẠO THÔNG BÁO KHI CẬP NHẬT HÓA ĐƠN
+  try {
+    const formattedMoney = new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND' 
+    }).format(data.total_amount);
+
+    await createNotification({
+      user_id: tenant_id,
+      title: "Hóa đơn đã cập nhật",
+      content: `Hóa đơn tháng ${month} đã được cập nhật. Tổng tiền mới: ${formattedMoney}.`
+    });
+
+    console.log(`🔔 Đã lưu thông báo cập nhật hóa đơn cho tenant: ${tenant_id}`);
+  } catch (error) {
+    console.error("❌ Lỗi tự động tạo thông báo cập nhật:", error);
+  }
 }
 
 export async function updateMeterReading(roomId, month, data) {

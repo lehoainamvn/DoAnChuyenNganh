@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import {
   forgotPasswordApi,
   resetPasswordApi
-} from "../../api/auth.api";
+} from "../../api/authApi";
 import { Mail, Key, Lock, ArrowLeft, ShieldEllipsis } from "lucide-react";
 import AuthLayout from "../../layouts/AuthLayout"; 
 

@@ -1,7 +1,7 @@
 import {
   getProfileRepo,
   updateProfileRepo
-} from "../repositories/profile.repo.js";
+} from "../repositories/profileRepository.js";
 
 export async function getProfileService(userId) {
   return getProfileRepo(userId);

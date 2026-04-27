@@ -11,8 +11,8 @@ import {
   Home
 } from "lucide-react";
 
-import { getTenantInvoiceDetail } from "../../api/tenant.api";
-import { createPaymentUrl } from "../../api/payment.api";
+import { getTenantInvoiceDetail } from "../../api/tenantApi";
+import { createPaymentUrl } from "../../api/paymentApi";
 
 export default function TenantInvoiceDetail() {
   const { id } = useParams();

@@ -10,7 +10,7 @@ import {
   getInvoicesByTenantId,
   getLatestInvoiceByTenantId,
   getInvoiceDetailByTenantId 
-} from "../repositories/invoice.repo.js";
+} from "../repositories/invoiceRepository.js";
 import { createNotification } from "./notification.service.js"; // 👉 Import hàm tạo thông báo
 import sql, { poolPromise } from "../config/db.js";
 /* =========================

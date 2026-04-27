@@ -5,8 +5,8 @@ import {
   createRoom,
   getCurrentTenantByRoom,
   deleteRoom
-} from "../repositories/room.repo.js";
-import { getSettingsByOwner } from "../repositories/settings.repo.js";
+} from "../repositories/roomRepository.js";
+import { getSettingsByOwner } from "../repositories/settingsRepository.js";
 import { createNotification } from "./notification.service.js";
 import sql, { poolPromise } from "../config/db.js";
 
@@ -178,7 +178,7 @@ export async function updateRoomService(ownerId, roomId, data) {
   return result;
 }
 
-import { assignTenantToRoomRepo } from "../repositories/room.repo.js";
+import { assignTenantToRoomRepo } from "../repositories/roomRepository.js";
 
 export async function assignTenantService(ownerId, roomId, tenantId) {
   await assignTenantToRoomRepo(ownerId, roomId, tenantId);

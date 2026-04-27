@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getInvoiceById, updateInvoiceStatus } from "../../api/invoice.api";
+import { getInvoiceById, updateInvoiceStatus } from "../../api/invoiceApi";
 import toast from "react-hot-toast";
 
 export default function InvoiceDetail() {

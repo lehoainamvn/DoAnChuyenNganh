@@ -5,15 +5,15 @@ import {
   getTenantDashboardRepo,
   getLatestInvoiceRepo,
   getTenantNotificationsRepo,
-} from "../repositories/tenant.repo.js";
+} from "../repositories/tenantRepository.js";
 
 import { getInvoiceDetailByTenantId } 
-from "../repositories/invoice.repo.js";
+from "../repositories/invoiceRepository.js";
 
 import sql, { poolPromise } from "../config/db.js";
 
 import { getTenantStatisticsRepo } 
-from "../repositories/invoice.repo.js";
+from "../repositories/invoiceRepository.js";
 
 export async function getTenantStatisticsService(tenantId) {
   const rows = await getTenantStatisticsRepo(tenantId);

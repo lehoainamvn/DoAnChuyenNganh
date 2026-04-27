@@ -3,7 +3,7 @@ import {
   getRevenue,
   getRevenueSummary,
   getRevenueByRoom
-} from "../../api/revenue.api";
+} from "../../api/revenueApi";
 
 import * as XLSX from "xlsx-js-style";
 import { saveAs } from "file-saver";

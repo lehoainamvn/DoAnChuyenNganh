@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getInvoicesByMonth } from "../../api/invoice.api";
+import { getInvoicesByMonth } from "../../api/invoiceApi";
 import { FileText, Send, Copy, X } from "lucide-react";
 import InvoiceFilter from "../../components/common/InvoiceFilter";
 import { useHouses } from "../../hooks/useHouses";

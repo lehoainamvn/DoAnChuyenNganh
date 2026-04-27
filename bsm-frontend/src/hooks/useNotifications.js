@@ -8,7 +8,7 @@ import {
   markAllAsReadApi, 
   deleteNotificationApi, 
   clearAllNotificationsApi 
-} from "../api/notification.api";
+} from "../api/notificationApi";
 
 const socket = io(SOCKET_URL);
 

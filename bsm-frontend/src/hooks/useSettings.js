@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getSettings } from "../api/settings.api";
+import { getSettings } from "../api/settingsApi";
 
 export function useSettings() {
   const [settings, setSettings] = useState({

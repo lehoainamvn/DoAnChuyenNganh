@@ -3,8 +3,8 @@ import { getSocket } from "../../socket";
 import { Search, Send, MessageSquare, Phone, Video, MoreVertical, CheckCheck, Paperclip, X, Image as ImageIcon } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { getMessageRooms, getMessagesByRoom, sendMessageApi } from "../../api/message.api";
-import { uploadImage } from "../../api/upload.api";
+import { getMessageRooms, getMessagesByRoom, sendMessageApi } from "../../api/messageApi";
+import { uploadImage } from "../../api/uploadApi";
 
 export default function Messages() {
   const socket = getSocket();

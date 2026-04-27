@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { getProfile, updateProfile } from "../../api/profile.api";
+import { getProfile, updateProfile } from "../../api/profileApi";
 import { User, Mail, Phone, Save, ShieldCheck, BadgeCheck } from "lucide-react";
 
 export default function TenantProfile() {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getTenantStatistics } from "../../api/tenant.api";
+import { getTenantStatistics } from "../../api/tenantApi";
 import {
   Chart as ChartJS,
   CategoryScale,

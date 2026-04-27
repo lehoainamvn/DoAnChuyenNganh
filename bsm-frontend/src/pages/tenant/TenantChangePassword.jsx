@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { changePassword } from "../../api/user.api";
-import { getProfile } from "../../api/profile.api";
+import { changePassword } from "../../api/userApi";
+import { getProfile } from "../../api/profileApi";
 import { Lock, KeyRound, ShieldCheck, BadgeCheck, Save, X } from "lucide-react";
 
 export default function ChangePassword() {

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerApi } from "../../api/auth.api";
+import { registerApi } from "../../api/authApi";
 import toast from "react-hot-toast";
 import { User, Phone, Mail, Lock, UserCircle, Home } from "lucide-react";
 import AuthLayout from "../../layouts/AuthLayout"; // <-- Import Layout dùng chung

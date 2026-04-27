@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import HouseMap from "./HouseMap";
-import { createHouse, updateHouse } from "../../api/house.api";
+import { createHouse, updateHouse } from "../../api/houseApi";
 
 export default function CreateHouseModal({
   house,

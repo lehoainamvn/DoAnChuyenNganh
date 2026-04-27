@@ -3,7 +3,7 @@ import {
   getRevenueSummaryRepo,
   getRoomRevenueByMonth,
   getRevenueByRoomRepo
-} from "../repositories/revenue.repo.js";
+} from "../repositories/revenueRepository.js";
 
 /* =========================
    DOANH THU THEO THÁNG / NĂM

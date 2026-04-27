@@ -8,7 +8,7 @@ import {
   findUserByEmailOrPhone,
   createUser,
   updateUserPassword
-} from "../repositories/user.repo.js";
+} from "../repositories/userRepository.js";
 
 import { sendMail } from "../utils/mail.js";
 
@@ -16,7 +16,7 @@ import {
   saveOtp,
   findOtp,
   deleteOtp
-} from "../repositories/otp.repo.js";
+} from "../repositories/otpRepository.js";
 
 /**
  * LOGIN
@@ -49,7 +49,7 @@ export async function loginService(identifier, password) {
 /**
  * GOOGLE LOGIN
  */
-export async function googleLoginService(token) {
+export async function googleLoginService(token, role = "OWNER") {
   // Google token verification
   const ticket = await googleClient.verifyIdToken({
     idToken: token,
@@ -66,12 +66,15 @@ export async function googleLoginService(token) {
     const randomPassword = Math.random().toString(36).slice(-10) + "A1!";
     const hashedPassword = await bcrypt.hash(randomPassword, 10);
     
+    // Validate role
+    const validRole = ["OWNER", "TENANT", "ADMIN"].includes(role) ? role : "OWNER";
+    
     await createUser({
       name: name || "Google User",
       email,
       phone: "GG-" + Date.now().toString().slice(-8), // Dummy phone to avoid NOT NULL constraints
       password: hashedPassword,
-      role: "OWNER"
+      role: validRole
     });
     
     user = await findUserByEmailOrPhone(email);

@@ -167,31 +167,7 @@ export default function RevenuePrediction() {
           ) : (
             <div className="space-y-6">
               {/* KPI CARDS */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                  { label: `Tổng dự báo (${months} tháng)`, value: fmt(totalPredicted), icon: <DollarSign size={18} />, color: "emerald", bg: "bg-emerald-50", text: "text-emerald-600" },
-                  { 
-                    label: "Xu hướng tháng tới", 
-                    value: trend !== null ? `${trend >= 0 ? "+" : ""}${trend.toFixed(1)}%` : "---", 
-                    icon: trend > 0 ? <ArrowUpRight size={18} /> : trend < 0 ? <ArrowDownRight size={18} /> : <Minus size={18} />,
-                    color: trend > 0 ? "emerald" : trend < 0 ? "red" : "slate",
-                    bg: trend > 0 ? "bg-emerald-50" : trend < 0 ? "bg-red-50" : "bg-slate-50",
-                    text: trend > 0 ? "text-emerald-600" : trend < 0 ? "text-red-500" : "text-slate-500"
-                  },
-                  { label: "Độ tin cậy", value: `${result.accuracy?.r2_score ?? 0}%`, icon: <ShieldCheck size={18} />, color: "indigo", bg: "bg-indigo-50", text: "text-indigo-600" },
-                  { label: "Sai lệch (MAE)", value: `±${fmtShort(result.accuracy?.mae || 0)}`, icon: <Scale size={18} />, color: "orange", bg: "bg-orange-50", text: "text-orange-500" },
-                ].map((c, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-5 flex items-center justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider leading-tight">{c.label}</p>
-                      <p className="text-xl font-bold text-slate-800 mt-1.5">{c.value}</p>
-                    </div>
-                    <div className={`w-11 h-11 ${c.bg} rounded-xl flex items-center justify-center ${c.text} flex-shrink-0`}>
-                      {c.icon}
-                    </div>
-                  </div>
-                ))}
-              </div>
+
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 {/* LEFT COLUMN: CHART & ADVICE */}

@@ -80,7 +80,7 @@ function StatCard({ title, value, total, color, icon: Icon, suffix = "" }) {
           </p>
         </div>
       </div>
-      
+
       <div className="transition-transform group-hover:scale-105">
         <MiniDonut value={value} total={total} color={color} />
       </div>
@@ -195,7 +195,7 @@ export default function Revenue() {
         cornerRadius: 12,
         displayColors: false,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             return `Doanh thu: ${context.parsed.y.toLocaleString("vi-VN")} đ`;
           }
         }
@@ -277,11 +277,10 @@ export default function Revenue() {
             <button
               onClick={exportExcel}
               disabled={!month}
-              className={`h-11 flex items-center justify-center gap-2 px-5 rounded-2xl font-bold text-sm transition-all shadow-sm ${
-                !month 
-                  ? "bg-white text-slate-300 cursor-not-allowed border border-slate-100" 
-                  : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/10 hover:shadow-emerald-500/20"
-              }`}
+              className={`h-11 flex items-center justify-center gap-2 px-5 rounded-2xl font-bold text-sm transition-all shadow-sm ${!month
+                ? "bg-white text-slate-300 cursor-not-allowed border border-slate-100"
+                : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/10 hover:shadow-emerald-500/20"
+                }`}
             >
               <Download size={16} strokeWidth={2.5} />
               Xuất Excel
@@ -292,126 +291,68 @@ export default function Revenue() {
         {/* FILTER BAR */}
         <div className="bg-white border border-slate-200/60 rounded-[2rem] shadow-sm p-6 space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 items-end">
-            
-            <CustomDropdown 
-              label="Năm phân tích" 
-              icon={Calendar} 
-              value={year} 
-              onChange={(val) => setYear(+val)} 
-              options={yearOptions} 
+
+            <CustomDropdown
+              label="Năm phân tích"
+              icon={Calendar}
+              value={year}
+              onChange={(val) => setYear(+val)}
+              options={yearOptions}
             />
 
-            <CustomDropdown 
-              label="Khu vực / Nhà" 
-              icon={Home} 
-              value={houseId} 
-              onChange={setHouseId} 
-              options={houseOptions} 
+            <CustomDropdown
+              label="Khu vực / Nhà"
+              icon={Home}
+              value={houseId}
+              onChange={setHouseId}
+              options={houseOptions}
             />
 
-            <CustomDropdown 
-              label="Tháng" 
-              icon={Moon} 
-              value={month} 
-              onChange={setMonth} 
-              options={monthOptions} 
+            <CustomDropdown
+              label="Tháng"
+              icon={Moon}
+              value={month}
+              onChange={setMonth}
+              options={monthOptions}
             />
           </div>
 
-          <div className="flex flex-wrap gap-3 text-sm pt-1">
-            <label className={`flex items-center gap-2.5 px-4 py-2 rounded-xl border-2 cursor-pointer transition-all ${showEmptyRooms ? "bg-indigo-50/70 border-indigo-200 text-indigo-700 font-bold" : "bg-slate-50 border-transparent text-slate-600 hover:border-slate-200"}`}>
-              <input
-                type="checkbox"
-                className="accent-indigo-600 h-4 w-4 rounded"
-                checked={showEmptyRooms}
-                onChange={() => setShowEmptyRooms(!showEmptyRooms)}
-              />
-              Bật xem phòng trống
-            </label>
-
-            <label className={`flex items-center gap-2.5 px-4 py-2 rounded-xl border-2 cursor-pointer transition-all ${showUnpaidInvoices ? "bg-indigo-50/70 border-indigo-200 text-indigo-700 font-bold" : "bg-slate-50 border-transparent text-slate-600 hover:border-slate-200"}`}>
-              <input
-                type="checkbox"
-                className="accent-indigo-600 h-4 w-4 rounded"
-                checked={showUnpaidInvoices}
-                onChange={() => setShowUnpaidInvoices(!showUnpaidInvoices)}
-              />
-              Hóa đơn chưa thanh toán
-            </label>
-          </div>
         </div>
 
         {/* KPI GRID */}
         {summary && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-
-            <StatCard
-              title="Khách thuê"
-              value={summary.totalTenants}
-              total={summary.totalRooms || 1}
-              color="#10b981"
-              icon={Users}
-            />
-
-            <StatCard
-              title="Nhà trọ"
-              value={summary.totalHouses}
-              total={summary.totalHouses || 1}
-              color="#0ea5e9"
-              icon={Home}
-            />
-
-            <StatCard
-              title="Phòng trọ"
-              value={summary.totalRooms}
-              total={summary.totalRooms || 1}
-              color="#f59e0b"
-              icon={DoorOpen}
-            />
-
-            {showEmptyRooms && (
-              <StatCard
-                title="Phòng trống"
-                value={summary.emptyRooms || 0}
-                total={summary.totalRooms || 1}
-                color="#ef4444"
-                icon={DoorOpen}
-              />
-            )}
-
-            {showUnpaidInvoices && (
-              <StatCard
-                title="Hóa đơn nợ"
-                value={summary.unpaidInvoices || 0}
-                total={summary.totalInvoices || 1}
-                color="#8b5cf6"
-                icon={FileText}
-              />
-            )}
+          <div className="grid grid-cols-1 gap-5">
 
             {/* THẺ TỔNG DOANH THU */}
-            <div className="bg-slate-900 border border-slate-800 rounded-[1.5rem] shadow-sm p-5 flex flex-col justify-between text-white lg:col-span-2 xl:col-span-1 h-full min-h-[120px] group hover:bg-slate-800 transition-colors">
+            <div className="bg-slate-900 border border-slate-800 rounded-[1.5rem] shadow-sm p-5 flex flex-col justify-between text-white h-full min-h-[140px] group hover:bg-slate-800 transition-colors">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Tổng doanh thu ({year})</p>
-                  <p className="text-2xl font-extrabold text-white mt-1">
+                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">
+                    Tổng doanh thu ({year})
+                  </p>
+
+                  <p className="text-3xl font-extrabold text-white mt-1">
                     {totalYearRevenue.toLocaleString("vi-VN")} đ
                   </p>
                 </div>
-                <div className="p-2.5 bg-slate-800 rounded-xl text-emerald-400 group-hover:bg-slate-700 transition-colors">
-                  <ArrowUpRight size={18} />
+
+                <div className="p-3 bg-slate-800 rounded-xl text-emerald-400 group-hover:bg-slate-700 transition-colors">
+                  <ArrowUpRight size={20} />
                 </div>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium">
+
+              <p className="text-sm text-slate-400 font-medium mt-4">
                 Dòng tiền thực tế phát sinh trong năm
               </p>
             </div>
+
           </div>
         )}
 
+
         {/* CHART & TABLE GRID */}
         <div className="grid lg:grid-cols-3 gap-6">
-          
+
           {/* ĐỒ THỊ DOANH THU */}
           <div className="lg:col-span-2 bg-white border border-slate-200/60 rounded-[2rem] shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="mb-6">
@@ -453,7 +394,7 @@ export default function Revenue() {
                   ))}
                 </tbody>
               </table>
-              
+
               {!loading && tableData.length === 0 && (
                 <div className="py-20 text-center text-slate-400">
                   <FileText size={32} className="mx-auto mb-3 text-slate-200" />

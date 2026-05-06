@@ -17,12 +17,24 @@ except Exception as e:
     print(json.dumps({"error": f"Lỗi đọc dữ liệu: {str(e)}"}))
     sys.exit(0)
 
-if not history_data or len(history_data) < 3:
+# Kiểm tra số lượng dữ liệu tối thiểu
+data_count = len(history_data) if history_data else 0
+
+if data_count < 3:
     print(json.dumps({
         "error": "Cần tối thiểu 3 tháng dữ liệu có phát sinh hóa đơn 'Đã thanh toán' để AI có thể học được xu hướng.",
-        "debug_count": len(history_data)
+        "current_months": data_count,
+        "required_months": 3,
+        "recommendation": "Vui lòng tích lũy thêm dữ liệu. Khuyến nghị có ít nhất 6-12 tháng để độ chính xác cao nhất (85-95%)."
     }))
     sys.exit(0)
+
+# Cảnh báo theo mức độ dữ liệu
+reliability_note = None
+if data_count < 6:
+    reliability_note = f"Chỉ có {data_count} tháng dữ liệu. Độ tin cậy thấp (50-60%). Khuyến nghị có ít nhất 6 tháng."
+elif data_count < 12:
+    reliability_note = f"Chỉ có {data_count} tháng dữ liệu. Độ tin cậy trung bình (70-80%). Khuyến nghị có ít nhất 12 tháng để độ chính xác cao nhất."
 
 # 2. TIỀN XỬ LÝ
 df = pd.DataFrame(history_data)
